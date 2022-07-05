@@ -11,7 +11,7 @@ Utilities to allow tactful services to run using flask
 ## Testing 
 
 ```
-poetry run test
+poetry run pytest
 ```
 
 ## Publishing
