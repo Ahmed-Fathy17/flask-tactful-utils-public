@@ -1,29 +1,25 @@
-# README #
+# Flask Tactful Utilities
 
-This README would normally document whatever steps are necessary to get your application up and running.
+Utilities to allow tactful services to run using flask
 
-### What is this repository for? ###
+## Installation
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+1. Install python 3.8+
+2. Install poetry `pip install poetry` or using these setps https://python-poetry.org/docs/#installation
+3. Install dependencies `poetry install`
 
-### How do I get set up? ###
+## Testing 
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+```
+poetry run test
+```
 
-### Contribution guidelines ###
+## Publishing
 
-* Writing tests
-* Code review
-* Other guidelines
+```
+poetry shell    # load virtual env to use poe task runner
+peo login       # run login task to load AWS code artifact credentials
+poetry build    # build the library
+poetry publish -r aws   # publish to AWS artifact repo
 
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+```
