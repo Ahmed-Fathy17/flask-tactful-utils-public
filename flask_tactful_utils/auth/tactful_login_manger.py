@@ -10,7 +10,6 @@ from flask_login import (LoginManager, SESSION_KEYS, _user_context_processor,
 decode_cookie, COOKIE_DURATION, COOKIE_HTTPONLY, COOKIE_SECURE, encode_cookie, _create_identifier, COOKIE_NAME,
 _signals, user_logged_in, user_logged_out)
 
-
 SESSION_KEYS.add('profile_id')
 
 COOKIE_PROFILE_NAME = 'current_profile'
