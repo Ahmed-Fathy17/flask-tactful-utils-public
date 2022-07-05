@@ -6,9 +6,26 @@ authors = ["Tactful AI <dev@tactful.ai>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+Flask = "^2.1.2"
+alembic = "^1.8.0"
+Flask-Admin = "^1.6.0"
+bugsnag = "^4.2.1"
+SQLAlchemy = "^1.4.39"
+Flask-JWT-Extended = "^4.4.2"
+flask-swagger-ui = "^4.11.1"
+Flask-SQLAlchemy = "^2.5.1"
+Flask-Migrate = "^3.1.0"
+flask-restx = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
+mypy = "^0.961"
+pylint = "^2.14.4"
+poethepoet = "^0.15.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+types = { "shell" = "mypy --install-types && mypy flask_tactful_utils" }
+lint = "pylint -f parseable -r n flask_tactful_utils"
