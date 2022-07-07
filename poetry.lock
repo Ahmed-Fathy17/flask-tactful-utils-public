@@ -157,6 +157,17 @@ Werkzeug = ">=0.14"
 asymmetric_crypto = ["cryptography (>=3.3.1)"]
 
 [[package]]
+name = "flask-kafka"
+version = "0.0.3"
+description = "An easy to use kafka consumer that uses the kafka-python library, it runs concurently with your flask server"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+kafka-python = "*"
+
+[[package]]
 name = "flask-migrate"
 version = "3.1.0"
 description = "SQLAlchemy database migrations for Flask applications using Alembic."
@@ -315,6 +326,17 @@ pyrsistent = ">=0.14.0,<0.17.0 || >0.17.0,<0.17.1 || >0.17.1,<0.17.2 || >0.17.2"
 [package.extras]
 format = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3987", "uri-template", "webcolors (>=1.11)"]
 format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3986-validator (>0.1.0)", "uri-template", "webcolors (>=1.11)"]
+
+[[package]]
+name = "kafka-python"
+version = "2.0.2"
+description = "Pure Python client for Apache Kafka"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+crc32c = ["crc32c"]
 
 [[package]]
 name = "lazy-object-proxy"
@@ -657,7 +679,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b02e2c7e34c250334e9a8fd4c6ce79fb158149a9337aa08035b1351442e11009"
+content-hash = "9c983eead035cac2cce5b6890d95d76700ec9810c8e90b80e0a78e55c35878f0"
 
 [metadata.files]
 alembic = [
@@ -706,6 +728,10 @@ flask-admin = [
 flask-jwt-extended = [
     {file = "Flask-JWT-Extended-4.4.2.tar.gz", hash = "sha256:f582bba980fcf728ab7250dbb6fbdca8d4e074e24eb2915b01184376ffff98c7"},
     {file = "Flask_JWT_Extended-4.4.2-py2.py3-none-any.whl", hash = "sha256:793f9e720d0e679cea8f99af6436819bfd1622fc345afeff48878c09f42548f6"},
+]
+flask-kafka = [
+    {file = "flask-kafka-0.0.3.tar.gz", hash = "sha256:68a7a4076a9144eb364cc8cff89773e3ce515ab8bfb4ba4e8e58dc4676189440"},
+    {file = "flask_kafka-0.0.3-py3-none-any.whl", hash = "sha256:61a5fcb728a72836c7dfeae9ad049ae157047ec6ebefd0621ddcca5323975507"},
 ]
 flask-migrate = [
     {file = "Flask-Migrate-3.1.0.tar.gz", hash = "sha256:57d6060839e3a7f150eaab6fe4e726d9e3e7cffe2150fb223d73f92421c6d1d9"},
@@ -807,6 +833,10 @@ jinja2 = [
 jsonschema = [
     {file = "jsonschema-4.6.1-py3-none-any.whl", hash = "sha256:5eb781753403847fb320f05e9ab2191725b58c5e7f97f1bed63285ca423159bc"},
     {file = "jsonschema-4.6.1.tar.gz", hash = "sha256:ec2802e6a37517f09d47d9ba107947589ae1d25ff557b925d83a321fc2aa5d3b"},
+]
+kafka-python = [
+    {file = "kafka-python-2.0.2.tar.gz", hash = "sha256:04dfe7fea2b63726cd6f3e79a2d86e709d608d74406638c5da33a01d45a9d7e3"},
+    {file = "kafka_python-2.0.2-py2.py3-none-any.whl", hash = "sha256:2d92418c7cb1c298fa6c7f0fb3519b520d0d7526ac6cb7ae2a4fc65a51a94b6e"},
 ]
 lazy-object-proxy = [
     {file = "lazy-object-proxy-1.7.1.tar.gz", hash = "sha256:d609c75b986def706743cdebe5e47553f4a5a1da9c5ff66d76013ef396b5a8a4"},
