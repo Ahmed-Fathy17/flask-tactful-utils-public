@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-
 from flask import _request_ctx_stack, current_app, request, session, has_request_context, make_response # type: ignore
 
 from werkzeug.local import LocalProxy

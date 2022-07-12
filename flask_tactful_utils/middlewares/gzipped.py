@@ -4,8 +4,10 @@ import gzip
 
 from flask import after_this_request, request
 
-def gzipped(f):
-    @functools.wraps(f)
+def gzipped(func):
+    """ flask middleware to gzip any response that is text based like CSV responses """
+
+    @functools.wraps(func)
     def view_func(*args, **kwargs):
         # pylint: disable=unused-variable
         @after_this_request
@@ -34,6 +36,6 @@ def gzipped(f):
 
             return response
 
-        return f(*args, **kwargs)
+        return func(*args, **kwargs)
 
     return view_func

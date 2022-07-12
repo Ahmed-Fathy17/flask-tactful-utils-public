@@ -1,6 +1,6 @@
-
-
-class AuthMiddleware(object):
+""" Some preprocessing for API authenitcation """
+# pylint: disable=too-few-public-methods
+class AuthMiddleware:
     """ Wraps app in a middleware that corrects the request for the sake of appsumo that expects us to use
     JWT Header Authourization, while we use X-API-KEY
     """

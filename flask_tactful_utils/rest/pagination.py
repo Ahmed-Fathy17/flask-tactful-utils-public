@@ -1,5 +1,5 @@
 
-from flask_restx import Namespace, fields
+from flask_restx import Model, Namespace, fields
 from .custom_fields import relation_includes_parser
 
 default_general_namespace = Namespace('default')
@@ -25,8 +25,8 @@ pagination_parser = relation_includes_parser.copy()
 pagination_parser.add_argument('limit', type=int, default=10000)
 pagination_parser.add_argument('page', type=int, default=1)
 
-def envelop_pagination(ns, model):
-    
-    return ns.inherit(model.name + "List", pagination_model, {
+def envelop_pagination(namespace: Namespace, model: Model):
+    """ adds pagination to returned Rest Model by adding [items] array """
+    return namespace.inherit(model.name + "List", pagination_model, {
         'items':  fields.List(fields.Nested(model))
     })

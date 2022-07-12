@@ -1,15 +1,23 @@
 #beautify description in swagger documentation
 
 def desc(txt=""):
-    return "<h3>{0}</h3>".format(txt)
+    """ highlight description """
+    return f"<h3>{txt}</h3>"
+
 def header(txt,cases=None):
-    return "<h1>{0}</h1><br>".format(txt)+usecases(cases)
+    """ highlight header """
+    return f"<h1>{txt}</h1><br> + {usecases(cases)}"
+
 def usecases(cases):
+    """ highlight usecase """
     return "<br>".join([desc(usecase) for usecase in cases]) if cases else ""
+
 def namespace_doc(description,cases=None):
-    return "<h2>{0}</h2><br>".format(description)+usecases(cases)
+    """ highlight namespace description """
+    return f"<h2>{description}</h2><br> {usecases(cases)}"
     
 def responses_doc(exceptions,custom_exceptions=None):
+    """ highlight response documentation """
     res = {}
     for exception in exceptions:
         res[exception.code] = desc(exception.description)
@@ -19,6 +27,7 @@ def responses_doc(exceptions,custom_exceptions=None):
     return res
 
 def path_ids_doc(path_params):
+    """ highlight path paremeters """
     res = {}
     for param in path_params:
         res[param]={'name': param, 'in': 'path', 'type': 'integer', 'required': True, 'description': 'The '+param+' identifier'}

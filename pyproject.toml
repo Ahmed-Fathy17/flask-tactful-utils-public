@@ -17,6 +17,9 @@ Flask-SQLAlchemy = "^2.5.1"
 Flask-Migrate = "^3.1.0"
 flask-restx = "^0.5.1"
 flask-kafka = "^0.0.3"
+Flask-Login = "^0.6.1"
+celery = "^5.2.7"
+python-simplexml = "^0.1.5"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.961"
@@ -29,7 +32,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
-compile = { shell = "mypy --install-types && mypy flask_tactful_utils" }
+compile = { shell = "mypy flask_tactful_utils" }
 lint = "pylint -f parseable -r n flask_tactful_utils"
 login = { shell = "export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain tactful --domain-owner 409160330780 --query authorizationToken --output text` && poetry config repositories.aws https://tactful-409160330780.d.codeartifact.eu-west-1.amazonaws.com/pypi/ucx-pip/ && poetry config http-basic.aws aws $CODEARTIFACT_AUTH_TOKEN" }
 

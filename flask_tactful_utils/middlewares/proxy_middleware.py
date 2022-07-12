@@ -1,5 +1,6 @@
 
-class ReverseProxied(object):
+# pylint: disable=too-few-public-methods
+class ReverseProxied:
     """ Wraps app in a middleware that corrects the request context if the app is behind a reverse proxy
     This currently works with AWS Elastic Load Balancer specefic headers
     It extracts the current schema used by the original client from: X-Forwarded-Proto HTTP header

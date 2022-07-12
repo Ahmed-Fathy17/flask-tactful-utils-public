@@ -5,6 +5,8 @@ from bugsnag.handlers import BugsnagHandler
 
 
 def init_app(app):
+    """ configures default monitoring using busgnag and logging for any flask app"""
+
     # Configure Bugsnag
     bugsnag.configure(
         api_key=app.config.get('BUGSNAG_KEY',"a250c2a3659a4a81effa97aa7bf30fe6"),
@@ -18,17 +20,17 @@ def init_app(app):
     handle_exceptions(app)
 
 
-    LOGGING_LEVEL = {
+    logging_levels = {
         'INFO': logging.INFO,
         'WARNING': logging.WARNING,
         'ERROR': logging.ERROR,
         'DEBUG': logging.DEBUG
     }
-    formatter = logging.Formatter(
-        '%(asctime)s [%(levelname)s] %(filename)s: %(message)s')
+    # formatter = logging.Formatter(
+    #     '%(asctime)s [%(levelname)s] %(filename)s: %(message)s')
 
     ########## Logging handler for (WARNING and above) severity ##########
-    level = LOGGING_LEVEL.get(app.config['LOG_LEVEL'].upper(), '')
+    level = logging_levels.get(app.config['LOG_LEVEL'].upper(), '')
 
     ############ Logging handler for (debugging and above) severity ######
     # std_handler.setFormatter(formatter)
