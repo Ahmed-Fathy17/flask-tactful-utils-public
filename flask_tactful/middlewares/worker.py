@@ -3,7 +3,7 @@
 
 from celery import Celery, Task
 
-def init_app(app):
+def init_app(app) -> Celery:
     """ initialize celery support """
     celery = Celery('app')
     celery.conf.update(app.config)
