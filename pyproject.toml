@@ -20,6 +20,7 @@ flask-kafka = "^0.0.3"
 Flask-Login = "^0.6.1"
 celery = "^5.2.7"
 python-simplexml = "^0.1.5"
+pydantic = "^1.9.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.961"

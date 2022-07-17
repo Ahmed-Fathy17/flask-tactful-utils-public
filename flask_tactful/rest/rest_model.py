@@ -53,7 +53,6 @@ class RestModel:
     def attr_to_restplus(self, attr_type, namespace: Namespace=None):
         """ parses simple class attributes to restplus fields """
         field_type = None
-        
         # if generic type
         if hasattr(attr_type, '__origin__'):
             field_type = self.generic_to_restplus(attr_type, namespace)
@@ -97,7 +96,7 @@ class RestModel:
         if generic_type in [typing.Union, typing.Optional]: 
             # if Optional or Union[Somthing, None]
             if len(generic_args) == 2 and generic_args[1] == type(None) :
-                return RestModel.attr_to_restplus(generic_args[0], namespace)
+                return self.attr_to_restplus(generic_args[0], namespace)
             
             raise Exception(f"Union types are not supported in API models, use Optional or Union[type, None] instead. found {generic_args}")
 
@@ -106,7 +105,7 @@ class RestModel:
         
         if generic_type_mapped:
             # if the generic is simple type
-            field_arg = RestModel.attr_to_restplus(generic_arg, namespace)
+            field_arg = self.attr_to_restplus(generic_arg, namespace)
             field_type = generic_type_mapped(field_arg)
         else:
             raise Exception(f"Unknonw Generic type {generic_type}")

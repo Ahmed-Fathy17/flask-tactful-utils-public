@@ -5,11 +5,12 @@ class AuthMiddleware:
     JWT Header Authourization, while we use X-API-KEY
     """
 
-    def __init__(self, app):
+    def __init__(self, app, jwt_header: str):
         self.app = app
+        self.jwt_header = jwt_header
 
     def __call__(self, environ, start_response):
-        jwt_header: str = self.app.config.get('JWT_HEADER_NAME')
+        jwt_header = self.jwt_header
         if jwt_header:
             jwt_header = jwt_header.replace("-", "_").upper()
 

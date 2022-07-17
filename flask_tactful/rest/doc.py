@@ -1,10 +1,12 @@
 #beautify description in swagger documentation
 
+from .parser_doc import parser_doc
+
 def desc(txt=""):
     """ highlight description """
     return f"<h3>{txt}</h3>"
 
-def header(txt,cases=None):
+def header(txt,cases=None):  
     """ highlight header """
     return f"<h1>{txt}</h1><br> + {usecases(cases)}"
 
