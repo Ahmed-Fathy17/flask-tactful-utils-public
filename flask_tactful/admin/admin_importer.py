@@ -14,7 +14,7 @@ class AdminImporter(ModelView):
     can_import = True
     import_types = ['csv']
 
-    list_template = 'admin/custom_list.html'
+    list_template = 'admin/templates/custom_list.html'
 
     @expose('/import/<import_type>/', methods=['POST'])
     def import_file(self, import_type):
