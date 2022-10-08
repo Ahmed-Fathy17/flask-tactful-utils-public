@@ -23,13 +23,23 @@ class TactfulBus():
     logger: logging.Logger
 
     def __init__(self, app: Flask, **kw):
-
-        kw.setdefault("bootstrap_servers", app.config.get("KAFKA_SERVERS"))
+        kafka_servers = app.config.get("KAFKA_SERVERS")
+        kw.setdefault("bootstrap_servers", kafka_servers)
         kw.setdefault("client_id", app.config.get("KAFKA_CLIENT_ID"))
         self.kafka_config = kw
         self.logger = app.logger
-        self._create_consumer(**kw)
-        self._create_producer(**kw)
+        self.consumer = None
+        self.handlers={}
+        self.event_handlers={}
+        self.interrupt_event = threading.Event()
+        self.producer = None
+
+
+        if not kafka_servers:
+            self.logger.warning("no kafka servers defined, will not start broker consumer or producer")
+        else:
+            self._create_consumer(**kw)
+            self._create_producer(**kw)
 
     def _create_consumer(self, **kw):
         consumer_config = kw.copy()
@@ -108,6 +118,9 @@ class TactfulBus():
             self.consumer.close()
 
     def _start(self):
+        if not self.consumer:
+            self.logger.debug('no consumer defined, skipping bus initialization')
+            return
         self.consumer.subscribe(topics=tuple(self.handlers.keys()))
         self.logger.info("starting consumer...registered signterm")
 
