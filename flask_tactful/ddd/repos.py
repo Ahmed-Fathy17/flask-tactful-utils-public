@@ -4,7 +4,6 @@ from uuid import UUID
 from abc import ABCMeta, abstractmethod
 
 from sqlalchemy import and_
-import sqlalchemy
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from .entity import Entity
 from .. import exceptions
@@ -15,6 +14,11 @@ class BaseRepo(metaclass=ABCMeta):
 
     @abstractmethod
     def get_by_id(self, id: UUID) -> Entity:
+        ...
+    
+
+    @abstractmethod
+    def get(self, entity: Entity):
         ...
 
     @abstractmethod
@@ -39,7 +43,7 @@ class GenericRepo:
         self.session.commit()
 
 
-    def one_by_query(self, query_statement):
+    def get(self, query_statement):
         try:
             return query_statement.one()
         except NoResultFound as no_result:
@@ -50,9 +54,9 @@ class GenericRepo:
 
     def get_by_id(self, model, model_id: int, profile_id: int):
         query = self.session.query(model).filter(and_(model.id == model_id, model.profile_id == profile_id))
-        return self.get_item(query)
+        return self.get(query)
 
-    def delete(obj):
+    def delete(self, obj):
         self.session.delete(obj)
         self.session.commit()
 
