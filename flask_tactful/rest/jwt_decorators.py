@@ -6,12 +6,12 @@ from flask_jwt_extended import current_user as jwt_user
 def profile_access_permission(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-
-        user =jwt_user if jwt_user and jwt_user.get('role') != 'customer' else kwargs['customer_payload'] #handle case of customer token
+        
+        identity = jwt_user.get('sub') if jwt_user else None
+        user =identity if identity and identity.get('role') != 'customer' else kwargs['customer_payload'] #handle case of customer token
         
         user_profile_role = user.get("profile_role", None)
         user_profile_id = user.get('profile_id', None) # Using profile name will force making a DB call before the request which is not a ideal case.
-
         if user_profile_id is not None and (kwargs.get('profile_id') is None and kwargs.get('profile') is None): 
             kwargs["profile"] = user_profile_id
         
