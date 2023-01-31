@@ -10,8 +10,8 @@ def user_lookup_loader(_jwt_header: Dict, jwt_payload: Dict):
     return jwt_payload
 
 @jwt.expired_token_loader
-def user_token_expired(data=None):
-    current_app.logger.debug("jwt.expired_token_loader callBack.......  ", data)
+def user_token_expired(jwt_header, jwt_payload):
+    current_app.logger.debug("jwt.expired_token_loader callBack.......  ", jwt_payload)
     resp = current_app.make_response((jsonify({'error':{'type':'tokenExpired', 'msg':"Token has expired"}}), 401))
     resp.headers['Access-Control-Allow-Origin'] = request.environ.get('HTTP_ORIGIN', '*')
     return resp
