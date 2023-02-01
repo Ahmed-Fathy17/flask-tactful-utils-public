@@ -77,7 +77,7 @@ class TactfulBus():
 
     def publish(self, event: Event, **send_opts):
         """ sent an event to the event specified topic event.__topic__ """
-        self.producer.send(topic=event.__topic__, value=event, **send_opts)
+        self.producer.send(topic=event.__topic__, value=event.__dict__, **send_opts)
 
     def on(self, topic: str, event: str):
         """ decorator to listen to a specific event on a topic, function must accept a paremeter of type Event """

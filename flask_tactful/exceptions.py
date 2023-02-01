@@ -60,3 +60,13 @@ class UserNotFoundException(HTTPException):
 class InternalServerErrorException(HTTPException):
     code = 500
     description = "Internal server error"
+
+class PreConditionFailedException(HTTPException):
+    code = 412
+    description = "Precondition requested data FAILED!"
+    
+class ExternalPreconditionFailedException(HTTPException):
+    """ This for the precondition requested from the third-party """
+    code = 412
+    description = PreConditionFailedException.description
+    
