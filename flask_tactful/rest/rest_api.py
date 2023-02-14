@@ -14,7 +14,7 @@ authorizations = {
     }
 }
 
-def RestApi(app: Flask, title:str, api_name:str='api', api_prefix='/api/v3', docs_url: str='/api/docs') -> Api:
+def RestApi(app: Flask, title:str, api_name:str='api', api_prefix='/api/v3', swagger_docs_url: str='/api/docs',docs_url:str='/docs') -> Api:
     app.config.update(RESTPLUS_JSON={'cls': RESTFULEncoder})
     app.config.update(SWAGGER_SUPPORTED_SUBMIT_METHODS=["get", "post", "delete", "put"])
     app.config.update(RESTPLUS_MASK_SWAGGER=False)
@@ -22,7 +22,7 @@ def RestApi(app: Flask, title:str, api_name:str='api', api_prefix='/api/v3', doc
     swagger_url = f"{api_prefix}/swagger.json"
 
     swaggerui_blueprint = get_swaggerui_blueprint(
-        base_url=docs_url,
+        base_url=swagger_docs_url,
         # hides the modules and control SwaggerUI js plugin
         # https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
         config=dict(
@@ -43,7 +43,7 @@ def RestApi(app: Flask, title:str, api_name:str='api', api_prefix='/api/v3', doc
     rest_api.add_namespace(default_general_namespace)
 
 
-    app.register_blueprint(swaggerui_blueprint, url_prefix=docs_url)
+    app.register_blueprint(swaggerui_blueprint, url_prefix=swagger_docs_url)
 
     app.register_blueprint(api_blueprint, url_prefix=api_prefix)
     
@@ -51,7 +51,7 @@ def RestApi(app: Flask, title:str, api_name:str='api', api_prefix='/api/v3', doc
 
     app.add_url_rule('/favicon.ico', view_func=favicon, methods=['GET'])
 
-    @app.route('/docs', methods=['GET'])
+    @app.route(docs_url, methods=['GET'])
     def show_api_docs():
         """Redirects to the homepage in our case it is the orders page."""
         return render_template_string(template, swagger_url=swagger_url)

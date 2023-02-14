@@ -7,8 +7,9 @@ def profile_access_permission(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         
-        identity = jwt_user.get('sub') if jwt_user else None
-        user =identity if identity and identity.get('role') != 'customer' else kwargs['customer_payload'] #handle case of customer token
+        user = jwt_user.get('sub') if jwt_user else None
+        #Not necessary anymore as the customer token payload will have the profile_id & profile_role so no need to tactful_jwt_validation decorator
+        #user =identity if identity and identity.get('role') != 'customer' else kwargs['customer_payload'] #handle case of customer token
         
         user_profile_role = user.get("profile_role", None)
         user_profile_id = user.get('profile_id', None) # Using profile name will force making a DB call before the request which is not a ideal case.
