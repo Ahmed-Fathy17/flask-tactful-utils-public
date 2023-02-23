@@ -24,15 +24,15 @@ python-simplexml = "^0.1.5"
 pydantic = "^1.9.1"
 redis = "^4.5.1"
 
-[tool.poetry.dev-dependencies]
-mypy = "^0.961"
-pylint = "^2.14.4"
-poethepoet = "^0.15.0"
-pytest = "^7.1.2"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
 notebook = "^6.5.2"
+pdoc = "^13.0.0"
+mypy = "^0.961"
+pylint = "^2.14.4"
+poethepoet = "^0.15.0"
+pytest = "^7.1.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
