@@ -33,7 +33,7 @@
             "type": "shell",
             "group": {
                 "kind": "build",
-                "isDefault": false,
+                "isDefault": true,
             }
            
         }

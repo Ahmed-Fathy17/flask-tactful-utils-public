@@ -37,12 +37,13 @@ def model_from_dict(model, **kwargs):
         else:
             print("NOT setting {0} not found (value={1})".format(key, value))
 
-# adds as_dict function to any model, note this does not handle relationships
-@as_declarative()
-class Base:
-    def as_dict(self):
-        return {c.key: getattr(self, c.key)
-                for c in inspect(self).mapper.column_attrs}
+## commented by Fouad, deprecated in Sqlalchemy v2.0
+# # adds as_dict function to any model, note this does not handle relationships
+# @as_declarative()
+# class Base:
+#     def as_dict(self):
+#         return {c.key: getattr(self, c.key)
+#                 for c in inspect(self).mapper.column_attrs}
 
 
 # walks model relatonships recursively, might not be useful because it can walk to parent relations too (profile for user.profile)

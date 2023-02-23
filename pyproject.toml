@@ -30,6 +30,10 @@ pylint = "^2.14.4"
 poethepoet = "^0.15.0"
 pytest = "^7.1.2"
 
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.0.0"
+notebook = "^6.5.2"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -43,3 +47,6 @@ login = { shell = "export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authoriz
 name = "aws"
 url = "https://tactful-409160330780.d.codeartifact.eu-west-1.amazonaws.com/pypi/ucx-pip/simple/"
 secondary = true
+
+[tool.pytest.ini_options]
+log_level = "DEBUG"

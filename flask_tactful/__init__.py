@@ -4,3 +4,4 @@ from . import database
 from . import middlewares
 from . import rest
 from . import admin
+from . import bus
