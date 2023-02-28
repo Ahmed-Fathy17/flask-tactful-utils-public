@@ -1,8 +1,17 @@
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import as_declarative
 
-# converts a model to dict, it can also handled related items, just specify a list of related items include_relationships=["related_attr_name"]
 def model_to_dict(obj, include_relationships=None, recursive_relationship=None):
+    """converts a model to dict, it can also handled related items, just specify a list of related items include_relationships=["related_attr_name"]
+
+    Args:
+        obj (_type_): _description_
+        include_relationships (_type_, optional): _description_. Defaults to None.
+        recursive_relationship (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     # print([c.key for c in inspect(obj).mapper.column_attrs])
     model_class = type(obj)
     # Models with __protected__ list, this function will skip these columns because they might contain sensitive data (like passwords)
@@ -25,9 +34,13 @@ def model_to_dict(obj, include_relationships=None, recursive_relationship=None):
 
     return ret
 
-# loads model data from input dict, does not handle related items
-# it is better than model.__init__() because it ignores non existing keys while init crashes if a non existing item is sent
 def model_from_dict(model, **kwargs):
+    """ loads model data from input dict, does not handle related items
+        it is better than model.__init__() because it ignores non existing keys while init crashes if a non existing item is sent
+
+    Args:
+        model (_type_): _description_
+    """
     protected = model.__protected__ if hasattr(model, "__protected__") else []
     for key, value in kwargs.items():
         if key not in protected:
@@ -36,6 +49,7 @@ def model_from_dict(model, **kwargs):
                 setattr(model, key, value)
         else:
             print("NOT setting {0} not found (value={1})".format(key, value))
+
 
 ## commented by Fouad, deprecated in Sqlalchemy v2.0
 # # adds as_dict function to any model, note this does not handle relationships
@@ -46,9 +60,17 @@ def model_from_dict(model, **kwargs):
 #                 for c in inspect(self).mapper.column_attrs}
 
 
-# walks model relatonships recursively, might not be useful because it can walk to parent relations too (profile for user.profile)
-# so it can build the whole relationship graph
 def walk_model_relations(obj):
+    """ walks model relatonships recursively, might not be useful because it can walk to parent relations too (profile for user.profile)
+        so it can build the whole relationship graph
+
+
+    Args:
+        obj (_type_): _description_
+
+    Yields:
+        _type_: _description_
+    """
     deque = [obj]
 
     seen = set()

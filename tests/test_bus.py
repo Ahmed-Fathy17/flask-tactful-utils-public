@@ -51,7 +51,7 @@ def test_flask_initilaization():
     assert bus.consumer_name == socket.gethostname()
 
 def test_redis_client(bus_client: TactfulRedisStreamBus):
-    bus_client._add_event_handler("unittest:billing", "CreditCardExpired", None)
+    bus_client.add_event_handler("unittest:billing", "CreditCardExpired", None)
     bus_client._preapre_streams()
     event_out = Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1)
     bus_client.publish(event_out)
@@ -63,13 +63,13 @@ def test_redis_group_loadbalancing(bus_same_group_clients: Tuple[TactfulRedisStr
     (sender, client1, client2, client3) = bus_same_group_clients
  
     # recieve events in each client
-    client1._add_event_handler("unittest:billing", "CreditCardExpired", None)
+    client1.add_event_handler("unittest:billing", "CreditCardExpired", None)
     client1._preapre_streams()
 
-    client2._add_event_handler("unittest:billing", "CreditCardExpired", None)
+    client2.add_event_handler("unittest:billing", "CreditCardExpired", None)
     client2._preapre_streams()
 
-    client3._add_event_handler("unittest:billing", "CreditCardExpired", None)
+    client3.add_event_handler("unittest:billing", "CreditCardExpired", None)
     client3._preapre_streams()
 
     # send some events
@@ -97,13 +97,13 @@ def test_redis_group_fanout(bus_many_groups_clients: Tuple[TactfulRedisStreamBus
     (sender, client1, client2, client3) = bus_many_groups_clients
  
     # recieve events in each client
-    client1._add_event_handler("unittest:billing", "CreditCardExpired", None)
+    client1.add_event_handler("unittest:billing", "CreditCardExpired", None)
     client1._preapre_streams()
 
-    client2._add_event_handler("unittest:billing", "CreditCardExpired", None)
+    client2.add_event_handler("unittest:billing", "CreditCardExpired", None)
     client2._preapre_streams()
 
-    client3._add_event_handler("unittest:billing", "CreditCardExpired", None)
+    client3.add_event_handler("unittest:billing", "CreditCardExpired", None)
     client3._preapre_streams()
 
     # send some events
