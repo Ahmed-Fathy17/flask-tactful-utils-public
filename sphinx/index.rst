@@ -3,10 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to flask_tactful's documentation!
-=========================================
-
-
+.. include:: ../README.rst
 
 .. toctree::
    :maxdepth: 5
@@ -14,6 +11,7 @@ Welcome to flask_tactful's documentation!
 
    _autosummary/modules
    
+
 
 
 Indices and tables
