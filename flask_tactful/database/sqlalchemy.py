@@ -1,11 +1,10 @@
 """ Abstracts Relational Database and migrations
 """
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 
-def init_app(app: Flask):
+def init_app(app):
     """initializes sqlalchemy and alembic migrations, call it in the App factory function
 
     Args:
