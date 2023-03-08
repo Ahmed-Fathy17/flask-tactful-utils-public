@@ -1,5 +1,5 @@
+from typing import Any
 from pydantic import BaseModel
-from typing import Optional
 
 class Event(BaseModel):
     # version identifier, if the schema changes, please increment
@@ -16,4 +16,7 @@ class Event(BaseModel):
     
     # profile ID (tenant id) for the workspace that generated the event
     profile_id: int
-    
+
+    def __init__(self, **data: Any) -> None:
+        super().__init__(**data)
+        self.event = self.__class__.__name__

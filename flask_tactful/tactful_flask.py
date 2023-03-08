@@ -1,6 +1,8 @@
 
 from typing import Dict
-from flask import Flask, redirect, current_app
+from flask import Flask, redirect
+from flask.globals import _find_app
+from werkzeug.local import LocalProxy
 from celery import Celery
 from flask_sqlalchemy import SQLAlchemy
 from flask_restx import Api
