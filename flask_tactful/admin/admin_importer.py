@@ -11,8 +11,21 @@ from flask_admin.contrib.sqla import ModelView
 
 
 class AdminImporter(ModelView):
+    """Allows Flask Admin views to import CSV,JSON data into the database model
+    If you inherit your Admin ModelView from this class, it will automatically support an "/import/" action
+    This import action will automatically import and parse a CSV file with column names matching the model 
+    You can export any Admin model, in order to see the column names format 
+
+
+    Args:
+        ModelView (FlaskAdminModel): Flask Admin Model view 
+
+    """
+
     can_import = True
+    """ Enable import for this model, can be overidden in your AdminModelView class """
     import_types = ['csv']
+    """ currently supports CSV only, but will be extended to support JSON """
 
     list_template = 'admin/templates/custom_list.html'
 

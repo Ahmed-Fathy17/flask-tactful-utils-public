@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "lint",
+            "command": "poetry run poe lint",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "problemMatcher": {
+                "applyTo": "allDocuments",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "owner": "pylint",
+                "severity": "info",
+                "pattern": {
+                    "regexp": "(.+):(\\d+): \\[(([CRWEF]{1}).+)",
+                    "file": 1,
+                    "line": 2,
+                    "code": 3,
+                    "message": 3,
+                    "severity": 4   //Pylint codes are: Convention, Refactor, Warning, Error, Fatal. it prints only the first Letter in the code e.g. [R0201()]
+                }
+            }
+        },
+        {
+            "label": "compile",
+            "command": "poetry run poe compile",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            }
+           
+        }
+    ]
+}

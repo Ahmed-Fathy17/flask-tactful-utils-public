@@ -7,6 +7,9 @@
 node_modules/
 dist/
 
+# sphinx auto generated
+sphinx/_autosummary
+
 # Compiled Java class files
 *.class
 
