@@ -12,11 +12,9 @@ class JWTPayload:
     aud: Literal['webchat', 'vdash', 'email'] = None
     expires_on: DateTime = None
 
-
 @dataclass
-class JWTAccessPayload(JWTPayload):
+class JWTProfilePayload(JWTPayload):
     profile_id: int = None
-    profile_name: str = None
     profile_role: str  = None
 
 @dataclass
@@ -25,7 +23,7 @@ class JWTWebChatPayload(JWTPayload):
     customer_id: int = None
     channel_id: int = None
 
-
+@dataclass
 class JWTCredintial:
     user_access_token: str
     user_refresh_token: str
