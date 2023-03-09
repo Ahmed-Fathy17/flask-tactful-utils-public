@@ -3,11 +3,16 @@ from flask import request
 from flask_restx import reqparse
 from flask_jwt_extended import current_user as jwt_user
 
+def get_current_user():
+    if jwt_user and isinstance(jwt_user.get('sub'),str):
+        return jwt_user
+    return jwt_user
+
 def profile_access_permission(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         
-        user = jwt_user.get('sub') if jwt_user else None
+        user = get_current_user()
         #Not necessary anymore as the customer token payload will have the profile_id & profile_role so no need to tactful_jwt_validation decorator
         #user =identity if identity and identity.get('role') != 'customer' else kwargs['customer_payload'] #handle case of customer token
         
@@ -41,7 +46,8 @@ def profile_access_permission(func):
 def require_admin(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if jwt_user.get("role") in ['admin', 'billing_admin', 'system_admin']:
+        user = get_current_user()
+        if user.get("role") in ['admin', 'billing_admin', 'system_admin']:
             return func(*args, **kwargs)
         else:        
             return 'Token provided does not have permissions to access this resource.', 401
