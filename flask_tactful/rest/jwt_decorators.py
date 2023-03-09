@@ -31,7 +31,7 @@ def profile_access_permission(func):
             kwargs.pop('customer_payload')  # added in tactful_jwt_validation 
         else:
             profile = kwargs.get('profile')
-            if user_profile_role is not None and profile is not None and user_profile_id != int(profile):
+            if user_profile_role is not None and profile is not None and int(user_profile_id) != int(profile):
                 return 'Different profile associated with authentication token', 401
        
         # Fouad = i disabled permissions checking till we get a better method that is more friendly to microservices
