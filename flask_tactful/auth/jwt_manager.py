@@ -1,6 +1,8 @@
+import jwt
 from typing import Dict
+from jwt import PyJWKClient
 from flask import current_app, jsonify, request
-from flask_jwt_extended import JWTManager , get_jwt_identity ,jwt_required
+from flask_jwt_extended import JWTManager ,jwt_required ,current_user
 from .jwt_payload import JWTPayload
 from functools import wraps
 
@@ -11,7 +13,9 @@ class TactfulJwt():
     
     @staticmethod
     def get_jwt_identity()->JWTPayload:
-        return get_jwt_identity()
+        payload = JWTPayload()
+        payload.from_dict(current_user)
+        return payload
 
     @staticmethod
     def jwt_required(func):
@@ -20,6 +24,17 @@ class TactfulJwt():
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         return wrapper
+
+    @staticmethod
+    def get_jwk(kid:str):
+        try:
+            jwks_url = current_app.config.get("JWKS_URL")
+            jwks_client = PyJWKClient(jwks_url)
+            signing_key = jwks_client.get_signing_key(kid)
+            if signing_key and signing_key.key:
+                return signing_key.key
+        except Exception as e:
+            print(e)
 
     # returns the key name, example "dash" -> "SECRET_KEY_DASH"
     @staticmethod
@@ -50,6 +65,8 @@ class TactfulJwt():
 
     @jwt.decode_key_loader
     def get_token_decoding_secret(unverified_headers: Dict,unverified_claims: Dict):
+        jwk = TactfulJwt.get_jwk(unverified_headers.get('kid'))
+        if jwk: return jwk
         audiance_secret_name = TactfulJwt.get_key_name_for_audiance(unverified_claims.get('sub').get('aud'))
         if audiance_secret_name is not None:
             return current_app.config.get(audiance_secret_name)
