@@ -6,6 +6,11 @@ from flask_jwt_extended import JWTManager ,jwt_required ,current_user
 from .jwt_payload import JWTPayload
 from functools import wraps
 
+def get_current_user():
+    if current_user and isinstance(current_user.get('sub'),str):
+        return current_user
+    return current_user.get('sub')
+
 class TactfulJwt():
     jwt = JWTManager()
     def __init__(self,app):
@@ -13,8 +18,9 @@ class TactfulJwt():
     
     @staticmethod
     def get_jwt_identity()->JWTPayload:
+        jwt_user = get_current_user()
         payload = JWTPayload()
-        payload.from_dict(current_user)
+        payload.from_dict(jwt_user)
         return payload
 
     @staticmethod

@@ -1,12 +1,8 @@
 from functools import wraps
 from flask import request
-from flask_restx import reqparse
-from flask_jwt_extended import current_user as jwt_user
+from ..auth.jwt_manager import get_current_user
 
-def get_current_user():
-    if jwt_user and isinstance(jwt_user.get('sub'),str):
-        return jwt_user
-    return jwt_user
+
 
 def profile_access_permission(func):
     @wraps(func)
