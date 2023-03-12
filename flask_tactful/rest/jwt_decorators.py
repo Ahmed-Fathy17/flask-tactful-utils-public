@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import request
+from flask import request, current_app
 from ..auth.jwt_manager import get_current_user
 
 
@@ -48,4 +48,20 @@ def require_admin(func):
         else:        
             return 'Token provided does not have permissions to access this resource.', 401
 
+    return decorated_view
+
+
+def oauth_authorize(func):
+    @wraps(func)
+    def decorated_view(*args,**kwargs):
+        resource= decorated_view.__qualname__.lower()
+        token = request.headers.get('X-API-KEY')
+        authResult = request.post(url=current_app.config.get("OPA_URL"), body={'resource':resource,'token':token}) #add the url
+        
+        if authResult.json() and authResult.json().get(resource):
+            if authResult.get('resource').get("allow"):
+                return True
+            raise authResult.get('resource').get('explain')
+
+        #raise ("Forbidden")
     return decorated_view
