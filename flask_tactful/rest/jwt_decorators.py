@@ -1,7 +1,9 @@
+import json
+import requests
 from functools import wraps
 from flask import request, current_app
 from ..auth.jwt_manager import get_current_user
-
+from ..exceptions import UnAuthorizedRoleException
 
 
 def profile_access_permission(func):
@@ -51,17 +53,26 @@ def require_admin(func):
     return decorated_view
 
 
-def oauth_authorize(func):
+def authorize(func):
     @wraps(func)
     def decorated_view(*args,**kwargs):
         resource= decorated_view.__qualname__.lower()
         token = request.headers.get('X-API-KEY')
-        authResult = request.post(url=current_app.config.get("OPA_URL"), body={'resource':resource,'token':token}) #add the url
-        
-        if authResult.json() and authResult.json().get(resource):
-            if authResult.get('resource').get("allow"):
-                return True
-            raise authResult.get('resource').get('explain')
-
-        #raise ("Forbidden")
+        body = {
+            "input": {
+            "resources":[resource],
+            "token":token.split()[-1],
+            "query_params":{resource:request.args.to_dict()},
+            "path_params":{resource:kwargs},
+            "body_params":{resource:request.json.get('data') or request.json},
+            "jwks":current_app.config.get("JWKS_URL")
+            }
+        }
+        res = requests.post(url=current_app.config.get("AUTHORIZATION_URL"), json=body)
+        auth_result = res.json().get("result").get(resource)
+        if auth_result:
+            if auth_result.get("allow"):
+                return func(*args,**kwargs)
+            raise UnAuthorizedRoleException(description=json.dumps(auth_result.get('explain')))
+        raise UnAuthorizedRoleException()
     return decorated_view
