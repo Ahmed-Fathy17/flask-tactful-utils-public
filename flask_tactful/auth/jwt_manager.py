@@ -19,8 +19,8 @@ class TactfulJwt():
     @staticmethod
     def get_jwt_identity()->JWTPayload:
         jwt_user = get_current_user()
-        payload = JWTPayload()
-        payload.from_dict(jwt_user)
+        payload = JWTPayload(id=jwt_user.get("id"),sub=jwt_user.get("sub"),email=jwt_user.get("email")
+                            ,role=jwt_user.get("role"),aud=jwt_user.get("aud"))
         return payload
 
     @staticmethod

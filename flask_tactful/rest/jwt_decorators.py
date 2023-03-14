@@ -64,8 +64,7 @@ def authorize(func):
             "token":token.split()[-1],
             "query_params":{resource:request.args.to_dict()},
             "path_params":{resource:kwargs},
-            "body_params":{resource:request.json.get('data') or request.json},
-            "jwks":current_app.config.get("JWKS_URL")
+            "body_params":{resource:request.json.get('data') or request.json}
             }
         }
         res = requests.post(url=current_app.config.get("AUTHORIZATION_URL"), json=body)

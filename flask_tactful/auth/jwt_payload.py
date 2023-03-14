@@ -32,5 +32,5 @@ class JWTWebChatPayload(JWTPayload):
 
 @dataclass
 class JWTCredintial:
-    user_access_token: str
-    user_refresh_token: str
+    user_access_token: Optional[str] = None
+    user_refresh_token: Optional[str] = None
