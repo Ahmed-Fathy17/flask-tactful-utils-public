@@ -1,10 +1,9 @@
-""" Adds Celery worker support to flask, also enabled tasks to access flask app context
-"""
 
 from celery import Celery, Task
 
 def init_app(app) -> Celery:
-    """ initialize celery support """
+    """ Adds Celery worker support to flask, also enabled tasks to access flask app context
+    """
     celery = Celery('app')
     celery.conf.update(app.config)
     
