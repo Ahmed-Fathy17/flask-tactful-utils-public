@@ -1,4 +1,5 @@
 import json
+from typing import Dict
 import requests
 from functools import wraps
 from flask import request, current_app
@@ -34,8 +35,9 @@ def profile_access_permission(func):
        
         # Fouad = i disabled permissions checking till we get a better method that is more friendly to microservices
         # if user_profile_role is not None and decorated_view.__qualname__.lower() in ROLES.get(user_profile_role.lower()): 
-        return func(*args, **kwargs)
-               
+        if resource_permission(decorated_view.__qualname__.lower(),kwargs):
+            return func(*args, **kwargs)
+           
         # return 'User profile role doesn\'t have API permission.', 401
 
     return decorated_view
@@ -53,25 +55,21 @@ def require_admin(func):
     return decorated_view
 
 
-def authorize(func):
-    @wraps(func)
-    def decorated_view(*args,**kwargs):
-        resource= decorated_view.__qualname__.lower()
-        token = request.headers.get('X-API-KEY')
-        body = {
-            "input": {
-            "resources":[resource],
-            "token":token.split()[-1],
-            "query_params":{resource:request.args.to_dict()},
-            "path_params":{resource:kwargs},
-            "body_params":{resource:request.json.get('data') or request.json}
-            }
+def resource_permission(resource:str,kwargs:Dict)->bool:
+    token = str(request.headers.get('X-API-KEY'))
+    body = {
+        "input": {
+        "resources":[resource],
+        "token":token.split()[-1],
+        "query_params":{resource:request.args.to_dict()},
+        "path_params":{resource:kwargs},
+        "body_params":{resource:request.json}
         }
-        res = requests.post(url=current_app.config.get("AUTHORIZATION_URL"), json=body)
-        auth_result = res.json().get("result").get(resource)
-        if auth_result:
-            if auth_result.get("allow"):
-                return func(*args,**kwargs)
-            raise UnAuthorizedRoleException(description=json.dumps(auth_result.get('explain')))
-        raise UnAuthorizedRoleException()
-    return decorated_view
+    }
+    res = requests.post(url=str(current_app.config.get("AUTHORIZATION_URL")), json=body)
+    auth_result = res.json().get("result").get(resource)
+    if auth_result:
+        if auth_result.get("allow"):
+            return True
+        raise UnAuthorizedRoleException(description=json.dumps(auth_result.get('explain')))
+    raise UnAuthorizedRoleException()

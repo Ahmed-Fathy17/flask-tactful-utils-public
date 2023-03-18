@@ -5,5 +5,5 @@ from .rest_model import class_to_restplus, model_to_restplus, class_to_parser
 from .parser_doc import parser_doc
 from . import doc
 from .rest_api import RestApi
-from .jwt_decorators import profile_access_permission, require_admin,authorize
+from .jwt_decorators import profile_access_permission, require_admin
 from .cors import allow_cors
