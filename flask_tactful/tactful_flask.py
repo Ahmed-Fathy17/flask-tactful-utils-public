@@ -11,9 +11,8 @@ from flask_migrate import Migrate
 from . import database
 from .bus import TactfulBus, TactfulRedisStreamBus
 from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
-from flask_tactful.rest import RestApi
-
-
+from .rest import RestApi
+from .auth.jwt_manager import TactfulJwt
 
 class TactfulFlask(Flask):
     """Tactful flavoured version of Flask, comes with pre-initialized modules like:
@@ -55,9 +54,13 @@ class TactfulFlask(Flask):
 
         # initialize bus
         self.bus = TactfulRedisStreamBus.from_app(self)
+
+        TactfulJwt(app=self)
         
         # Initialize monitoring
         monitoring.init_app(self)
+
+        
 
         @self.route("/")
         def home():
