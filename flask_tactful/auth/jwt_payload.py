@@ -8,25 +8,29 @@ JWTAudiences = Literal['webchat', 'vdash', 'email']
 class JWTPayload:
     """ This class is about the payload of the token """
     email: str
-    id: int
-    role: str 
+    role: str
     aud: JWTAudiences
-    expires_on: datetime
+    id: Optional[int] = None
+    sub: Optional[str] = None
+    expires_on: Optional[datetime] = None
+
+    def from_dict(self,payload):
+        for field in self.__dataclass_fields__:
+            setattr(self, field, payload.get(field))
 
 
 @dataclass
 class JWTAccessPayload(JWTPayload):
     profile_id: Optional[int] = None
-    profile_name: Optional[str] = None
     profile_role: Optional[str] = None
 
 @dataclass
 class JWTWebChatPayload(JWTPayload):
-    guid: str
-    customer_id: int
-    channel_id: int
+    guid: Optional[str] = None
+    customer_id: Optional[int] = None
+    channel_id: Optional[int] = None
 
-
+@dataclass
 class JWTCredintial:
-    user_access_token: str
-    user_refresh_token: str
+    user_access_token: Optional[str] = None
+    user_refresh_token: Optional[str] = None
