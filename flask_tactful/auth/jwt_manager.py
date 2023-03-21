@@ -12,6 +12,13 @@ def get_current_user():
     return current_user.get('sub')
 
 class TactfulJwt():
+    """Extends JWTManager from flask_jwt_extended to enable features like:
+    
+     - accessing a JWKS (JSON Web Key Set) to support rotating keys 
+     and decoding tokens without having to know the secret key
+     - Supports multiple keys (one per audience)
+     - Supports loading user data encoded in the JWT payload as current_user
+    """
     jwt = JWTManager()
     def __init__(self,app):
         self.jwt.init_app(app)
@@ -50,10 +57,12 @@ class TactfulJwt():
         return f"SECRET_KEY_{aud.upper()}"
 
     @jwt.user_lookup_loader
+    @staticmethod
     def user_lookup_loader(_jwt_header: Dict, jwt_payload: Dict):
         return jwt_payload
 
     @jwt.expired_token_loader
+    @staticmethod
     def user_token_expired(jwt_header, jwt_payload):
         current_app.logger.debug("jwt.expired_token_loader callBack.......  ", jwt_payload)
         resp = current_app.make_response((jsonify({'error':{'type':'tokenExpired', 'msg':"Token has expired"}}), 401))
@@ -61,6 +70,7 @@ class TactfulJwt():
         return resp
 
     @jwt.encode_key_loader
+    @staticmethod
     def get_token_encoding_secret(identity: Dict):
         audiance_secret_name = TactfulJwt.get_key_name_for_audiance(identity.get('aud'))
         if audiance_secret_name is not None:
@@ -70,6 +80,7 @@ class TactfulJwt():
             return current_app.config.get('JWT_SECRET_KEY')
 
     @jwt.decode_key_loader
+    @staticmethod
     def get_token_decoding_secret(unverified_headers: Dict,unverified_claims: Dict):
         jwk = TactfulJwt.get_jwk(unverified_headers.get('kid'))
         if jwk: return jwk

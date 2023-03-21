@@ -35,6 +35,7 @@ poethepoet = "^0.15.0"
 pytest = "^7.1.2"
 sphinx-rtd-theme = "^1.2.0"
 zundler = {git = "https://github.com/AdrianVollmer/Zundler", rev = "main"}
+autopep8 = "^2.0.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -55,3 +56,10 @@ secondary = true
 
 [tool.pytest.ini_options]
 log_level = "DEBUG"
+
+[tool.autopep8]
+max_line_length = 120
+ignore = "E501,W6,E11"
+in-place = true
+recursive = true
+aggressive = false

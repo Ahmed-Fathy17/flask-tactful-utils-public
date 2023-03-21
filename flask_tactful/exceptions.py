@@ -1,6 +1,10 @@
+""" HTTP exceptions fired by Tactful services
+each exception contains an HTTP Status code and error message
+
+The exceptions are handled by Flask and are returned to the user with the status code
+"""
 
 from werkzeug.exceptions import HTTPException
-
 
 class SchemaValidationException(HTTPException):
     code = 400

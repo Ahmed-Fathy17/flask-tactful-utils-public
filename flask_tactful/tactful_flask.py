@@ -9,6 +9,8 @@ from flask_restx import Api
 from flask_migrate import Migrate
 
 from . import database
+__all__ = ["TactfulFlask"]
+
 from .bus import TactfulBus, TactfulRedisStreamBus
 from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
 from .rest import RestApi
