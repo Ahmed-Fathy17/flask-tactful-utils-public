@@ -8,14 +8,13 @@ class RestFilter:
             includes = includes.replace(' ', '')
             includes = includes.split(',')
         return includes
-        
-    def clean_dict(self, dict_obj:dict)-> dict:
+
+    def clean_dict(self, dict_obj: dict) -> dict:
         """ removes empty values from a dict """
-        dict_obj = dict((k, v) for k, v in dict_obj.items() if v )
+        dict_obj = dict((k, v) for k, v in dict_obj.items() if v)
         return dict_obj
 
-    def clean_request_dict(self, dict_obj:dict)-> dict:
+    def clean_request_dict(self, dict_obj: dict) -> dict:
         """ removes empty values from a dict """
-        dict_obj = dict((k, v) for k, v in dict_obj.items() if v is not None) 
+        dict_obj = dict((k, v) for k, v in dict_obj.items() if v is not None)
         return dict_obj
-    

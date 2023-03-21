@@ -13,12 +13,11 @@ def init_app(app):
     Returns:
         _type_: _description_
     """
-    
+
     db = SQLAlchemy()
     db.init_app(app)
     app.db = db
-    
+
     app.migrate = Migrate(app, db)
 
     return db
-    

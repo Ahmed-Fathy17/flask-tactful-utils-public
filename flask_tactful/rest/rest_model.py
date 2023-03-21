@@ -9,7 +9,7 @@ from .custom_fields import AnyTypeField
 
 ParserLocations = typing.Literal['form', 'headers', 'values', 'args', 'cookies', 'files', 'json']
 
-##### this gist might be useful to handle loading and serializing for models https://gist.github.com/alanhamlett/6604662
+# this gist might be useful to handle loading and serializing for models https://gist.github.com/alanhamlett/6604662
 python2restplus = {
     'str': fields.String,
     'datetime': fields.DateTime,
@@ -50,7 +50,7 @@ class RestModel:
     def __init__(self, mapper: typing.Dict) -> None:
         self.type_mapper = mapper
 
-    def attr_to_restplus(self, attr_type, namespace: Namespace=None):
+    def attr_to_restplus(self, attr_type, namespace: Namespace = None):
         """ parses simple class attributes to restplus fields """
         field_type = None
         # if generic type
@@ -61,10 +61,10 @@ class RestModel:
             field_type = AnyTypeField
         elif attr_type.__name__ in self.type_mapper:
             field_type = self.type_mapper.get(attr_type.__name__)
-        # a user defined class 
+        # a user defined class
         else:
             field_type = self.complex_to_restplus(attr_type, namespace)
-        
+
         return field_type
 
     def complex_to_restplus(self, attr_type, namespace: Namespace):
@@ -78,31 +78,28 @@ class RestModel:
 
         return field_type
 
-
     def generic_to_restplus(self, attr_type, namespace: Namespace):
-        """ parses generic types Union, Literal, etc and converts them to restplus model """ 
+        """ parses generic types Union, Literal, etc and converts them to restplus model """
         generic_type = attr_type.__origin__
         generic_args = attr_type.__args__ if attr_type.__args__ else None
         generic_arg = generic_args[0] if generic_args else None
 
-        
         generic_type_mapped = None
 
         # if the generic is Literal (str)
         if generic_type == typing.Literal:
             field_type = self.type_mapper.get('str')
             return field_type
-        
-        if generic_type in [typing.Union, typing.Optional]: 
+
+        if generic_type in [typing.Union, typing.Optional]:
             # if Optional or Union[Somthing, None]
-            if len(generic_args) == 2 and generic_args[1] == type(None) :
+            if len(generic_args) == 2 and generic_args[1] == type(None):
                 return self.attr_to_restplus(generic_args[0], namespace)
-            
+
             raise Exception(f"Union types are not supported in API models, use Optional or Union[type, None] instead. found {generic_args}")
 
-        
         generic_type_mapped = self.type_mapper.get(generic_type.__name__)
-        
+
         if generic_type_mapped:
             # if the generic is simple type
             field_arg = self.attr_to_restplus(generic_arg, namespace)
@@ -128,7 +125,7 @@ def class_to_restplus(model: typing.Any, namespace=None):
             ret[attr_name] = field_type
     return ret
 
-    
+
 def model_to_restplus(model: flask_sqlalchemy.Model):
     """ converts model class to Restuplus Field types, 
     it does not handle Nested items, it leaves this to the caller to append them to the returned dictionary
@@ -138,15 +135,15 @@ def model_to_restplus(model: flask_sqlalchemy.Model):
     ret = {}
     for column in sqlalchemy.inspect(model).mapper.columns:
         # skip if primary key
-        # if not c.primary_key: 
-        column_type = 'UUID' if isinstance(column.type,sqlalchemy.dialects.postgresql.base.UUID) else column.type.python_type.__name__
+        # if not c.primary_key:
+        column_type = 'UUID' if isinstance(column.type, sqlalchemy.dialects.postgresql.base.UUID) else column.type.python_type.__name__
         field_type = python2restplus.get(column_type)
         # pprint(str.format("mapping {0}({1}) => {2}", c.key, column_type, field_type))
         if (column.key not in masked) and field_type:
             if column_type != "list":
                 ret[column.key] = field_type(description=column.doc)
             else:
-                ret[column.key] = field_type(python2restplus.get("str"),description=column.doc)
+                ret[column.key] = field_type(python2restplus.get("str"), description=column.doc)
     return ret
 
 
@@ -157,7 +154,7 @@ def class_to_parser(model: typing.Any, locations: ParserLocations):
     it assumes the POPO contain class attributes with mypy types or Python type data
     """
     parser = reqparse.RequestParser()
-    
+
     masked = model.__masked__ if hasattr(model, "__masked__") else []
 
     for (attr_name, attr_type) in model.__annotations__.items():

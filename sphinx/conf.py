@@ -15,11 +15,11 @@ release = '1.0.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['sphinx.ext.duration',
-   'sphinx.ext.napoleon',
-    'sphinx.ext.doctest',
-   'sphinx.ext.autodoc',
-   'sphinx.ext.autosummary',
-    ]
+              'sphinx.ext.napoleon',
+              'sphinx.ext.doctest',
+              'sphinx.ext.autodoc',
+              'sphinx.ext.autosummary',
+              ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -40,6 +40,6 @@ html_theme_options = {
 
 autosummary_generate = True
 autoclass_content = 'class'
-autodoc_member_order='bysource'
+autodoc_member_order = 'bysource'
 html_show_sourcelink = False
 autodoc_inherit_docstrings = True

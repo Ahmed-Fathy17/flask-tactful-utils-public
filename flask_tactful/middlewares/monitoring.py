@@ -9,16 +9,15 @@ def init_app(app):
 
     # Configure Bugsnag
     bugsnag.configure(
-        api_key=app.config.get('BUGSNAG_KEY',"a250c2a3659a4a81effa97aa7bf30fe6"),
-        notify_release_stages=["production", "staging", "beta", "alpha", "demo", "test","qa", "eco","channels","eng"],
+        api_key=app.config.get('BUGSNAG_KEY', "a250c2a3659a4a81effa97aa7bf30fe6"),
+        notify_release_stages=["production", "staging", "beta", "alpha", "demo", "test", "qa", "eco", "channels", "eng"],
         release_stage=app.config.get('STAGE', 'development'),
         auto_notify=True,
-        #project_root = "/path/to/your/app",
+        # project_root = "/path/to/your/app",
     )
     # Attach Bugsnag to Flask's exception handler
 
     handle_exceptions(app)
-
 
     logging_levels = {
         'INFO': logging.INFO,
@@ -62,7 +61,7 @@ def init_app(app):
 #         code = e.code if e and isinstance(e, HTTPException) else 500
 #         app.logger.info("Error 500 %s", e.message)
 #         return render_template('error.html', error=e), code
-        
+
 #     except Exception as e:     # pylint: disable=broad-except
 #         app.logger.info("Exception of the error handler 500")
 #         code = e.code if e and isinstance(e, HTTPException) else 500

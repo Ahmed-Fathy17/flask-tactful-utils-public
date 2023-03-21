@@ -1,9 +1,10 @@
 from functools import wraps
 from flask import request, current_app
 
+
 def get_cors_headers():
     return {
-        
+
         'Content-Type': "application/json; charset=UTF-8",
         'Access-Control-Allow-Origin': request.environ.get('HTTP_ORIGIN', '*'),
         'Access-Control-Allow-Methods': 'PUT,GET,POST,DELETE,OPTIONS',
@@ -16,13 +17,14 @@ def get_cors_headers():
 
     }
 
+
 def allow_cors(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         headers = {}
         if current_app.config.get('ENABLE_CORS'):
             headers = get_cors_headers()
-        
+
         response = func(*args, **kwargs)
         # override the headers with the ones set by the API function
         # conserve the ones set by the view function
@@ -31,4 +33,3 @@ def allow_cors(func):
         code = response[1] if len(response) > 0 else 200
         return (response[0], code, headers)
     return decorated_view
-

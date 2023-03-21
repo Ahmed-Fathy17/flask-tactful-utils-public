@@ -16,9 +16,10 @@ from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
 from .rest import RestApi
 from .auth.jwt_manager import TactfulJwt
 
+
 class TactfulFlask(Flask):
     """Tactful flavoured version of Flask, comes with pre-initialized modules like:
-    
+
     1. SQLAlchemy, as ORM
     2. Migrations, Alembic for managing DB migrations
     3. Celery, for async worker tasks
@@ -33,7 +34,6 @@ class TactfulFlask(Flask):
     migrate: Migrate
     api: Api
 
-  
     def configure(self, app_config: Dict, api_title: str, api_name='api', api_prefix=''):
         """Configures TactfulFlask customized version
 
@@ -47,8 +47,8 @@ class TactfulFlask(Flask):
             _type_: _description_
         """
         self.config.update(app_config)
-        self.wsgi_app = ReverseProxied(self.wsgi_app) # type: ignore
-        self.wsgi_app = AuthMiddleware(self.wsgi_app, self.config.get('JWT_HEADER_NAME')) # type: ignore
+        self.wsgi_app = ReverseProxied(self.wsgi_app)  # type: ignore
+        self.wsgi_app = AuthMiddleware(self.wsgi_app, self.config.get('JWT_HEADER_NAME'))  # type: ignore
 
         self.db = database.init_app(self)
         self.celery = worker.init_app(self)
@@ -58,16 +58,15 @@ class TactfulFlask(Flask):
         self.bus = TactfulRedisStreamBus.from_app(self)
 
         TactfulJwt(app=self)
-        
+
         # Initialize monitoring
         monitoring.init_app(self)
-
-        
 
         @self.route("/")
         def home():
             return redirect("/docs")
-        
+
         return self
-    
+
+
 current_app: TactfulFlask = LocalProxy(_find_app)  # type: ignore

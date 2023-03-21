@@ -6,7 +6,7 @@ from sqlalchemy.inspection import inspect
 from flask import flash, redirect, request
 from flask_admin import expose
 from flask_admin.babel import gettext
-from flask_admin.helpers import get_redirect_target 
+from flask_admin.helpers import get_redirect_target
 from flask_admin.contrib.sqla import ModelView
 
 
@@ -36,7 +36,7 @@ class AdminImporter(ModelView):
         if not self.can_import or (import_type not in self.import_types):
             flash(gettext('Permission denied.'), 'error')
             return redirect(return_url)
-        
+
         flask_file = request.files['file']
         if not flask_file:
             flash(gettext('Please Upload a file'), 'error')
@@ -47,17 +47,17 @@ class AdminImporter(ModelView):
         else:
             flash(gettext('Format not supported yet'), 'error')
             return redirect(return_url)
-    
+
     def _get_column_names_dict(self):
         """ returns dict with { PrettyName: model_name } """
         name_tuples = self.get_export_columns()
-        return {nt[1]:nt[0] for nt in name_tuples}
+        return {nt[1]: nt[0] for nt in name_tuples}
 
     def _convert_value(self, val, val_type=None):
-        # also parse the value "False" should be Boolean not string 
-        
+        # also parse the value "False" should be Boolean not string
+
         # Interpret the string as a Python literal
-        #return literal_eval(val)
+        # return literal_eval(val)
         print("parsing >> ", val_type, val)
         if val:
             if val_type is str:
@@ -66,7 +66,7 @@ class AdminImporter(ModelView):
                 print("json >> ", val, type(val))
                 try:
                     return json.loads(val)
-                except json.decoder.JSONDecodeError: 
+                except json.decoder.JSONDecodeError:
                     # valid json is double-quoted, but sometimes objects are single quoted, fix
                     fixed_json = val.replace("'", '"')
                     return json.loads(fixed_json)
@@ -85,7 +85,7 @@ class AdminImporter(ModelView):
                 return not val == 'False'
             else:
                 return val_type(val)
-        else: 
+        else:
             return None
 
     def load_relations(self, row, mapper):
@@ -105,14 +105,13 @@ class AdminImporter(ModelView):
                 values = values.split(',')
             else:
                 values = [values]
-            
-            
+
             # if entity relation has not values, skip it
             if colname in row and values:
                 if not hasattr(related_model, "__unique__"):
                     raise Exception("cannot detect unique column, declare __unique__ = ['column_name1', 'column_name2'] in your model {0}".format(related_model))
                 unique_col_names = related_model.__unique__
-                
+
                 related_query = self.session.query(related_model)
                 # if model is profile based
                 if hasattr(related_model, "profile") and row.get("profile"):
@@ -125,11 +124,11 @@ class AdminImporter(ModelView):
                         query_value = value
                         col_type = getattr(related_model, unqiue_col_name).type.python_type
                         if col_type is int:
-                            query_value = int(value) if value!='' else 0
+                            query_value = int(value) if value != '' else 0
                         unique_col = getattr(related_model, unqiue_col_name)
                         filtered_query = filtered_query.filter(unique_col == query_value)
                     related_instance = filtered_query.one_or_none()
-                    if not related_instance and value!='':
+                    if not related_instance and value != '':
                         raise Exception(f"value {value} not found  in {related_model}")
                     elif related_instance:
                         related_instances.append(related_instance)
@@ -137,9 +136,9 @@ class AdminImporter(ModelView):
                     expanded_row.pop(colname)
                 else:
                     expanded_row[colname] = related_instances if relation.uselist else related_instances[0]
-                    
+
         return expanded_row
-            
+
     def convert_columns(self, row, mapper):
         for column in mapper.columns:
             col_type = column.type.python_type
@@ -165,7 +164,7 @@ class AdminImporter(ModelView):
             if not self.handle_view_exception(ex):
                 flash(gettext('Failed to read csv rows. %(error)s', error=str(ex)), 'error')
             return []
-        
+
         return rows
 
     # Checks Model.__unique__ array for unique columns and searches the table for them
@@ -182,7 +181,7 @@ class AdminImporter(ModelView):
             if hasattr(self.model, "profile") and row.get("profile"):
                 profile_col = getattr(self.model, "profile")
                 original_query = original_query.filter(profile_col.has(name=row.get("profile")))
-        
+
             for (unique_col_name, unique_col) in unique_cols:
                 if unique_col_name in row and row.get(unique_col_name):
                     original_query = original_query.filter(unique_col == row.get(unique_col_name))
@@ -192,7 +191,7 @@ class AdminImporter(ModelView):
             if has_unique:
                 original_instance = original_query.one_or_none()
         return original_instance
-    
+
     def _import_csv(self, return_url, csv_file):
         """
             Import a CSV file into database
@@ -213,15 +212,15 @@ class AdminImporter(ModelView):
             for row in rows:
                 if row:
                     row = self.uglify_column_names(row)
-                    
+
                     # converts strings loaded from csv to column types
                     self.convert_columns(row, mapper)
                     # load the relations for foreign keys
                     original_instance = self.get_unique_if_exists(row)
                     # check if this row exists before?
-                    
+
                     row = self.load_relations(row, mapper)
-                   
+
                     # if it already exists, update it, else add new
                     is_created = True
                     if not original_instance:
@@ -231,7 +230,7 @@ class AdminImporter(ModelView):
                     self.model_from_dict(original_instance, **row)
                     self.session.add(original_instance)
                     entries.append((row, original_instance, is_created))
-                        
+
             self.session.commit()
             for (row, model, is_created) in entries:
                 self.on_model_change(row, model, is_created)
@@ -243,9 +242,9 @@ class AdminImporter(ModelView):
 
         return redirect(return_url)
 
-
     # loads model data from input dict, does not handle related items
     # it is better than model.__init__() because it ignores non existing keys while init crashes if a non existing item is sent
+
     def model_from_dict(self, model, **kwargs):
         for key, value in kwargs.items():
             if hasattr(model, key):

@@ -6,6 +6,7 @@ from datetime import datetime
 """
 JWTAudiences = Literal['webchat', 'vdash', 'email']
 
+
 @dataclass
 class JWTPayload:
     """ payload data stored in JWT token """
@@ -16,7 +17,7 @@ class JWTPayload:
     sub: Optional[str] = None
     expires_on: Optional[datetime] = None
 
-    def from_dict(self,payload):
+    def from_dict(self, payload):
         for field in self.__dataclass_fields__:
             setattr(self, field, payload.get(field))
 
@@ -27,6 +28,7 @@ class JWTAccessPayload(JWTPayload):
     """
     profile_id: Optional[int] = None
     profile_role: Optional[str] = None
+
 
 @dataclass
 class JWTWebChatPayload(JWTPayload):
@@ -39,6 +41,7 @@ class JWTWebChatPayload(JWTPayload):
     customer_id: Optional[int] = None
     """ Channel ID that the customer is visiting from """
     channel_id: Optional[int] = None
+
 
 @dataclass
 class JWTCredintial:

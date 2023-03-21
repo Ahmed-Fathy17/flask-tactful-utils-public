@@ -10,11 +10,11 @@ class ReverseProxied:
         self.app = app
 
     def __call__(self, environ, start_response):
-        
+
         scheme = environ.get('X-Forwarded-Proto')
         if scheme:
             environ['wsgi.url_scheme'] = scheme
-        
+
         # get the client remote address from behind the proxy
         remote_addr = None
         remotes = environ.get('HTTP_X_FORWARDED_FOR', '').split(',')

@@ -1,8 +1,9 @@
 from io import StringIO as IO
-import functools 
+import functools
 import gzip
 
 from flask import after_this_request, request
+
 
 def gzipped(func):
     """ flask middleware to gzip any response that is text based like CSV responses """
@@ -21,10 +22,10 @@ def gzipped(func):
 
             if (response.status_code < 200 or
                 response.status_code >= 300 or
-                'Content-Encoding' in response.headers):
+                    'Content-Encoding' in response.headers):
                 return response
             gzip_buffer = IO()
-            gzip_file = gzip.GzipFile(mode='wb', 
+            gzip_file = gzip.GzipFile(mode='wb',
                                       fileobj=gzip_buffer)
             gzip_file.write(response.data)
             gzip_file.close()

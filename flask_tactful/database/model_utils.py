@@ -1,6 +1,7 @@
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import as_declarative
 
+
 def model_to_dict(obj, include_relationships=None, recursive_relationship=None):
     """converts a model to dict, it can also handled related items, just specify a list of related items include_relationships=["related_attr_name"]
 
@@ -25,7 +26,7 @@ def model_to_dict(obj, include_relationships=None, recursive_relationship=None):
         for relationship in inspect(type(obj)).relationships:
             if relationship.key in include_relationships:
                 # print("relation: ", relationship.key)
-                
+
                 related = getattr(obj, relationship.key)
                 if relationship.uselist and related is not None:
                     ret[relationship.key] = [model_to_dict(r, recursive_relationship) for r in related]
@@ -33,6 +34,7 @@ def model_to_dict(obj, include_relationships=None, recursive_relationship=None):
                     ret[relationship.key] = model_to_dict(related, recursive_relationship)
 
     return ret
+
 
 def model_from_dict(model, **kwargs):
     """ loads model data from input dict, does not handle related items
@@ -51,7 +53,7 @@ def model_from_dict(model, **kwargs):
             print("NOT setting {0} not found (value={1})".format(key, value))
 
 
-## commented by Fouad, deprecated in Sqlalchemy v2.0
+# commented by Fouad, deprecated in Sqlalchemy v2.0
 # # adds as_dict function to any model, note this does not handle relationships
 # @as_declarative()
 # class Base:

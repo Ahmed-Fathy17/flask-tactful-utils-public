@@ -11,13 +11,13 @@
 
 __all__ = ['default_general_namespace', 'envelop_pagination', 'pagination_model', 'pagination_parser', 'rule_model',
            'AnyTypeField', 'JsonLoadsField', 'LoadStringToList', 'relation_includes_parser',
-            'RestFilter',
-            'class_to_restplus', 'model_to_restplus', 'class_to_parser',
-            'parser_doc', 'doc',
-            'RestApi',
-            'profile_access_permission', 'require_admin', 
-            'allow_cors'
-        ]
+           'RestFilter',
+           'class_to_restplus', 'model_to_restplus', 'class_to_parser',
+           'parser_doc', 'doc',
+           'RestApi',
+           'profile_access_permission', 'require_admin',
+           'allow_cors'
+           ]
 
 from .pagination import default_general_namespace, envelop_pagination, pagination_model, pagination_parser, rule_model
 from .custom_fields import AnyTypeField, JsonLoadsField, LoadStringToList, relation_includes_parser

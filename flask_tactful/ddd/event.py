@@ -1,6 +1,7 @@
 from typing import Any
 from pydantic import BaseModel
 
+
 class Event(BaseModel):
     # version identifier, if the schema changes, please increment
     version: int = 1
@@ -13,7 +14,7 @@ class Event(BaseModel):
 
     # unique ID of the message pushed in the bus, usually assigned by the bus itself on receiving or sending
     msg_id: str = ""
-    
+
     # profile ID (tenant id) for the workspace that generated the event
     profile_id: int
 

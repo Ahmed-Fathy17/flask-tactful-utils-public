@@ -13,13 +13,12 @@
 
 # class TactfulKafkaBus(TactfulBus):
 #     """
-#     WARNING: This class is Alpha status, and is not stable, use TactfulRedisBus instead 
-#     Bus (Message Queue/Broker) utility class. 
+#     WARNING: This class is Alpha status, and is not stable, use TactfulRedisBus instead
+#     Bus (Message Queue/Broker) utility class.
 #     Allows Flask app to listen to bus events and send events to the bus """
-    
+
 #     producer: KafkaProducer
 #     kafka_config: Dict
-
 
 
 #     def __init__(self, app: Flask, **kw):
@@ -80,7 +79,7 @@
 #             self.consumer.commit()
 #         except Exception as e:
 #             self.logger.critical(str(e), exc_info=1)
-            
+
 
 #     def _msg_handled(self, msg: Any):
 #         super()._msg_handled(msg)

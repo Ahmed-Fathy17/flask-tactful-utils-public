@@ -15,7 +15,6 @@ class BaseRepo(metaclass=ABCMeta):
     @abstractmethod
     def get_by_id(self, id: UUID) -> Entity:
         ...
-    
 
     @abstractmethod
     def get(self, entity: Entity):
@@ -33,6 +32,7 @@ class BaseRepo(metaclass=ABCMeta):
     def delete(self, entity_id: UUID):
         ...
 
+
 class GenericRepo:
 
     def __init__(self, session):
@@ -42,7 +42,6 @@ class GenericRepo:
         self.session.add(obj)
         self.session.commit()
 
-
     def get(self, query_statement):
         try:
             return query_statement.one()
@@ -51,7 +50,6 @@ class GenericRepo:
         except MultipleResultsFound:  # FAAAAAAAAAAAAAALSE ERRROR MUST BE HANDLED WITH ANOTHER WAY
             return query_statement.first()
 
-
     def get_by_id(self, model, model_id: int, profile_id: int):
         query = self.session.query(model).filter(and_(model.id == model_id, model.profile_id == profile_id))
         return self.get(query)
@@ -59,4 +57,3 @@ class GenericRepo:
     def delete(self, obj):
         self.session.delete(obj)
         self.session.commit()
-
