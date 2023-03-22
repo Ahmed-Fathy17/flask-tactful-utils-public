@@ -80,7 +80,6 @@ def get_token_encoding_secret(identity: Dict):
 
 @jwt.decode_key_loader
 def get_token_decoding_secret(unverified_headers: Dict, unverified_claims: Dict):
-    print(current_app.config)
     jwk = TactfulJwt.get_jwk(unverified_headers.get('kid'))
     if jwk:
         return jwk
