@@ -43,6 +43,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
+test = "pytest ."
 compile = { shell = "mypy flask_tactful" }
 lint = "pylint -f parseable -r n flask_tactful"
 login = { shell = "export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain tactful --domain-owner 409160330780 --query authorizationToken --output text` && poetry config repositories.aws https://tactful-409160330780.d.codeartifact.eu-west-1.amazonaws.com/pypi/ucx-pip/ && poetry config http-basic.aws aws $CODEARTIFACT_AUTH_TOKEN" }
@@ -56,7 +57,7 @@ url = "https://tactful-409160330780.d.codeartifact.eu-west-1.amazonaws.com/pypi/
 secondary = true
 
 [tool.pytest.ini_options]
-log_level = "DEBUG"
+log_level = "WARN"
 
 [tool.autopep8]
 max_line_length = 120

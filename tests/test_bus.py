@@ -56,11 +56,11 @@ def test_flask_initilaization():
 
 
 def test_redis_client(bus_client: TactfulRedisStreamBus):
-    bus_client.add_event_handler("unittest:billing", "CreditCardExpired", None)
-    bus_client._preapre_streams()
-    event_out = Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1)
+    bus_client.add_event_handler("billing", "CreditCardExpired", None)
+    bus_client._prepare_streams()
+    event_out = Event(topic="billing", event="CreditCardExpired", profile_id=1)
     bus_client.publish(event_out)
-    event_in = bus_client.read(["unittest:billing"])[0]
+    event_in = bus_client.read()[0]
 
     assert event_in == event_out
 
@@ -69,26 +69,26 @@ def test_redis_group_loadbalancing(bus_same_group_clients: Tuple[TactfulRedisStr
     (sender, client1, client2, client3) = bus_same_group_clients
 
     # recieve events in each client
-    client1.add_event_handler("unittest:billing", "CreditCardExpired", None)
-    client1._preapre_streams()
+    client1.add_event_handler("billing", "CreditCardExpired", None)
+    client1._prepare_streams()
 
-    client2.add_event_handler("unittest:billing", "CreditCardExpired", None)
-    client2._preapre_streams()
+    client2.add_event_handler("billing", "CreditCardExpired", None)
+    client2._prepare_streams()
 
-    client3.add_event_handler("unittest:billing", "CreditCardExpired", None)
-    client3._preapre_streams()
+    client3.add_event_handler("billing", "CreditCardExpired", None)
+    client3._prepare_streams()
 
     # send some events
     events_out = [
-        Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1),
-        Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1),
-        Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1),
+        Event(topic="billing", event="CreditCardExpired", profile_id=1),
+        Event(topic="billing", event="CreditCardExpired", profile_id=1),
+        Event(topic="billing", event="CreditCardExpired", profile_id=1),
     ]
     [sender.publish(ev) for ev in events_out]
 
-    events_in1 = client1.read(["unittest:billing"])
-    events_in2 = client2.read(["unittest:billing"])
-    events_in3 = client3.read(["unittest:billing"])
+    events_in1 = client1.read()
+    events_in2 = client2.read()
+    events_in3 = client3.read()
 
     assert len(events_in1) > 0
     assert len(events_in2) > 0
@@ -101,26 +101,26 @@ def test_redis_group_fanout(bus_many_groups_clients: Tuple[TactfulRedisStreamBus
     (sender, client1, client2, client3) = bus_many_groups_clients
 
     # recieve events in each client
-    client1.add_event_handler("unittest:billing", "CreditCardExpired", None)
-    client1._preapre_streams()
+    client1.add_event_handler("billing", "CreditCardExpired", None)
+    client1._prepare_streams()
 
-    client2.add_event_handler("unittest:billing", "CreditCardExpired", None)
-    client2._preapre_streams()
+    client2.add_event_handler("billing", "CreditCardExpired", None)
+    client2._prepare_streams()
 
-    client3.add_event_handler("unittest:billing", "CreditCardExpired", None)
-    client3._preapre_streams()
+    client3.add_event_handler("billing", "CreditCardExpired", None)
+    client3._prepare_streams()
 
     # send some events
     events_out = [
-        Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1),
-        Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1),
-        Event(topic="unittest:billing", event="CreditCardExpired", profile_id=1),
+        Event(topic="billing", event="CreditCardExpired", profile_id=1),
+        Event(topic="billing", event="CreditCardExpired", profile_id=1),
+        Event(topic="billing", event="CreditCardExpired", profile_id=1),
     ]
     [sender.publish(ev) for ev in events_out]
 
-    events_in1 = client1.read(["unittest:billing"])
-    events_in2 = client2.read(["unittest:billing"])
-    events_in3 = client3.read(["unittest:billing"])
+    events_in1 = client1.read()
+    events_in2 = client2.read()
+    events_in3 = client3.read()
 
     assert len(events_in1) > 0
     assert len(events_in2) > 0

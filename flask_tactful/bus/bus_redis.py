@@ -1,7 +1,4 @@
 
-import json
-import threading
-import signal
 from typing import Any, Dict, Iterable, List, Optional
 import socket
 import logging
@@ -46,7 +43,7 @@ class TactfulRedisStreamBus(TactfulBus):
         REDIS_BUS_URL: redis:// formatted url 
         REDIS_CONSUMER_GROUP: name of the consumer group (usually the service name) that will have multiple instances of the same service reading events in a load balanced fashion
         REDIS_CONSUMER_NAME: name of the consumer, must be the same after restarting, if not provided, the hostname will be used
-
+        STAGE: name of the current environment (e.g. test, prod) to be used as a prefix for apps
         Notes about consumer name:
 
         1. Use Kubernetes StatefulSets, to preserve each client ID (pods will be called bot-1, bot-2)
@@ -62,22 +59,25 @@ class TactfulRedisStreamBus(TactfulBus):
             bus_url=app.config.get("REDIS_BUS_URL", None),
             group_name=app.config.get("REDIS_CONSUMER_GROUP", None),
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
+            prefix=app.config.get("STAGE", "local:"),
             logger=app.logger,
             **kw
         )
 
-    def __init__(self, bus_url: str, group_name: str, consumer_name: str, logger: Optional[logging.Logger] = None, **kw):
-        super().__init__(bus_url, group_name, consumer_name, **kw)
+    def __init__(self, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, **kw):
+        super().__init__(prefix, **kw)
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
+        if not (group_name and consumer_name):
+            raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
 
-    def _preapre_streams(self):
+    def _prepare_streams(self):
         """initialized the streams and consumer groups for reading
         if the consumer group already exists (the application just crashed) it will reuse the consumer group
         this will also create the stream (topic) 
         """
-        watched_streams = self.handlers.keys()
+        watched_streams = self.get_topics()
         self.logger.debug("preparing handlers for: %s", watched_streams)
         for stream in watched_streams:
             self.logger.info(f"initializing stream {stream}")
@@ -94,7 +94,7 @@ class TactfulRedisStreamBus(TactfulBus):
                 self.logger.info(f"stream info: {stream_info}")
                 self.logger.info(f"group info {groups_info}")
 
-    def read(self, streams: Iterable[str], count: int = 1) -> List[Event]:
+    def read(self, count: int = 1) -> List[Event]:
         """ reads from the bus, **dont use directly**, instead use the on() decorator which is more powerful
 
         Args:
@@ -104,6 +104,7 @@ class TactfulRedisStreamBus(TactfulBus):
         Returns:
             List[Event]: _description_
         """
+        streams = self.get_topics()
         events: List[Event] = []
         streams_results = self.redis.xreadgroup(groupname=self.group_name, consumername=self.consumer_name, streams={s: '>' for s in streams}, count=count)
         self.logger.debug(f"read a stream message {streams_results}")
@@ -121,10 +122,9 @@ class TactfulRedisStreamBus(TactfulBus):
 
     def _start_reading(self):
         super()._start_reading()
-        self._preapre_streams()
-        streams = self.handlers.keys()
+        self._prepare_streams()
         while (True):
-            events = self.read(streams=streams, count=1)
+            events = self.read(count=1)
             for event in events:
                 self._run_handlers(event)
 
@@ -148,7 +148,7 @@ class TactfulRedisStreamBus(TactfulBus):
         self.redis.xack(msg.topic, self.group_name, msg.msg_id)
 
     def delete_all(self):
-        watched_streams = self.handlers.keys()
+        watched_streams = self.get_topics()
         self.logger.warn(f"destroying the following streams {watched_streams}")
 
         for stream in watched_streams:

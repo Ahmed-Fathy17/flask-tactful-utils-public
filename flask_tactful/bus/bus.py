@@ -7,7 +7,7 @@ import abc
 
 from ..ddd import Event
 
-TactfulBusTopicHandler = Callable[[Event], None]
+TactfulBusTopicHandler = Optional[Callable[[Event], None]]
 TactfulBusEventHandler = Callable[[Event], None]
 
 
@@ -15,12 +15,21 @@ class TactfulBus(abc.ABC):
     """ Bus (Message Queue/Broker) utility class. 
     Allows Flask app to listen to bus events and send events to the bus """
 
+    """ Prefix for all keys and topic names including a separator (e.g. test/ prod/ tactful/), 
+    allows us to use , set to current STAGE by default e.g. test:KEYNAME
+    """
+    prefix: str
+
+    """ List of handler callback functions for each topic or stream, use add_handler(), dont use directly"""
     handlers: Dict[str, List[TactfulBusTopicHandler]]
+
+    """ List of callback handler function for each event, use add_event_handler() or on(), dont use directly"""
     event_handlers: Dict[str, List[TactfulBusEventHandler]]
+    
     interrupt_event: threading.Event
     logger: logging.Logger
 
-    def __init__(self, bus_url: str, group_name: str, consumer_name: str, logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, prefix: str = "", logger: Optional[logging.Logger] = None, **kw):
         """Initialize the bus (do it once in the application lifetime)
 
         Note:
@@ -32,6 +41,7 @@ class TactfulBus(abc.ABC):
             consumer_name (str): if not provieded, it is extracted from the current machine/pod/vm host name, a consumer is a unique instance of the service, that gets some of the messages sent to the consumer group. 
             logger (Optional[logging.Logger], optional): Python Logger, if not provieded, one will be created. Defaults to None.
         """
+        self.prefix = prefix
         self.logger = logger if logger else logging.Logger("redis_bus")
         self.handlers = {}
         self.event_handlers = {}
@@ -48,6 +58,11 @@ class TactfulBus(abc.ABC):
     def shutdown(self, signal: int, frame: Any):
         """ shutdown the bus listenrs """
         ...
+
+    """ returns list of subscribed topics of the current application """
+    def get_topics(self) -> List[str]:
+        return [key for key in self.handlers.keys()]
+    
 
     @abc.abstractmethod
     def send(self, topic: str, raw_msg: Dict, **send_opts) -> str:
@@ -114,29 +129,33 @@ class TactfulBus(abc.ABC):
             handler (TactfulBusEventHandler): a function that will be called when an event message is recieved on the bus matching the specified event name in param
         """
         event_key = f"{topic}+{event}"
+        self._add_handler(topic, None)
         if self.event_handlers.get(event_key) is None:
-            self.event_handlers[topic] = []
+            self.event_handlers[event_key] = []
         self.event_handlers[event_key].append(handler)
 
-    def _add_handler(self, topic, handler: TactfulBusTopicHandler):
+    def _add_handler(self, topic: str, handler: TactfulBusTopicHandler):
         if self.handlers.get(topic) is None:
             self.handlers[topic] = []
         self.handlers[topic].append(handler)
 
     def _run_handlers(self, msg: Event):
+        topic = msg.topic
         try:
-            handlers = self.handlers.get(msg.topic, [])
+            handlers = self.handlers.get(topic, [])
             event_handlers = []
-            event_handlers = self.event_handlers.get(f"{msg.topic}+{msg.event}", [])
+            event_handlers = self.event_handlers.get(f"{topic}+{msg.event}", [])
 
             # if no listners on this topic, report a warning
             if not handlers or not event_handlers:
-                self.logger.warn(f"no handlers or event listners for this {msg.topic}")
+                self.logger.warn(f"no handlers or event listners for this {topic}")
 
             for handler in handlers:
-                handler(msg)
+                if handler:
+                    handler(msg)
             for event_handler in event_handlers:
-                event_handler(msg)
+                if event_handler: 
+                    event_handler(msg)
             self._msg_handled(msg)
         except Exception as e:
             self.logger.critical(str(e), exc_info=e)
