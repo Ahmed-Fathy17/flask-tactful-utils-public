@@ -33,6 +33,5 @@ Publishing
     poetry shell    # load virtual env to use poe task runner
     peo login       # run login task to load AWS code artifact credentials
     poetry version [minor|patch] # pump the version
-    poetry build    # build the library
-    poetry publish -r aws   # publish to AWS artifact repo
-    git commit -a . && git tag $(poetry version --short) && git push --tags
+    poe publish     # builds and publishes the new pumped version
+    git commit -a -m "$(poetry version --short)" && git tag $(poetry version --short) && git push --tags && git push
