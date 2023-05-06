@@ -2,6 +2,7 @@
 from typing import Any, Dict, Iterable, List, Optional
 import socket
 import logging
+from pydantic import parse_obj_as
 from flask import Flask
 from redis import Redis
 from redis.exceptions import RedisError
@@ -56,6 +57,7 @@ class TactfulRedisStreamBus(TactfulBus):
 
         """
         return cls(
+            app=app,
             bus_url=app.config.get("REDIS_BUS_URL", None),
             group_name=app.config.get("REDIS_CONSUMER_GROUP", None),
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
@@ -64,8 +66,8 @@ class TactfulRedisStreamBus(TactfulBus):
             **kw
         )
 
-    def __init__(self, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, **kw):
-        super().__init__(prefix, **kw)
+    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, **kw):
+        super().__init__(app=app, prefix=prefix, logger=logger, **kw)
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
@@ -86,7 +88,7 @@ class TactfulRedisStreamBus(TactfulBus):
             try:
                 self.redis.xgroup_create(name=stream, groupname=self.group_name, mkstream=True)
             except RedisError as e:
-                self.logger.error("error creating consumer group %s for stream %s", self.group_name, stream)
+                self.logger.error("error creating consumer group %s for stream %s, this means it already exists, continue..", self.group_name, stream)
             finally:
                 # dump the stream info for debugging
                 stream_info = self.redis.xinfo_stream(stream)
@@ -106,7 +108,8 @@ class TactfulRedisStreamBus(TactfulBus):
         """
         streams = self.get_topics()
         events: List[Event] = []
-        streams_results = self.redis.xreadgroup(groupname=self.group_name, consumername=self.consumer_name, streams={s: '>' for s in streams}, count=count)
+        self.logger.debug(f"blocking on streams {streams}")
+        streams_results = self.redis.xreadgroup(groupname=self.group_name, consumername=self.consumer_name, streams={s: '>' for s in streams}, count=count, block=50000)
         self.logger.debug(f"read a stream message {streams_results}")
         for (stream_key, stream_messages) in streams_results:
             for (msg_id, msg) in stream_messages:

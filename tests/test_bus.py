@@ -18,6 +18,7 @@ def reset_bus():
 @pytest.fixture()
 def bus_client(reset_bus):
     client1 = TactfulRedisStreamBus(
+        app=Flask(__name__),
         bus_url=TEST_REDIS_DB,
         group_name="tests",
         consumer_name="client1"
@@ -28,20 +29,20 @@ def bus_client(reset_bus):
 @pytest.fixture()
 def bus_same_group_clients(reset_bus):
     return (
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="sender"),
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="client1"),
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="client2"),
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="client3")
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="sender"),
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="client1"),
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="client2"),
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="tests", consumer_name="client3")
     )
 
 
 @pytest.fixture()
 def bus_many_groups_clients(reset_bus):
     return (
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="test_channels", consumer_name="sender"),
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="test_chat", consumer_name="client1"),
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="test_reports", consumer_name="client2"),
-        TactfulRedisStreamBus(bus_url=TEST_REDIS_DB, group_name="test_billing", consumer_name="client3")
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="test_channels", consumer_name="sender"),
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="test_chat", consumer_name="client1"),
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="test_reports", consumer_name="client2"),
+        TactfulRedisStreamBus(app=Flask(__name__), bus_url=TEST_REDIS_DB, group_name="test_billing", consumer_name="client3")
     )
 
 

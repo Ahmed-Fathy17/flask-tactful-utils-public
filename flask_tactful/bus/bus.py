@@ -2,6 +2,7 @@
 import logging
 import threading
 import signal
+from flask import Flask
 from typing import Any, Dict, Callable, Optional, List
 import abc
 
@@ -14,6 +15,9 @@ TactfulBusEventHandler = Callable[[Event], None]
 class TactfulBus(abc.ABC):
     """ Bus (Message Queue/Broker) utility class. 
     Allows Flask app to listen to bus events and send events to the bus """
+
+    """ Flask app to be used when handling events, bus will create a context to handle it """
+    app: Flask
 
     """ Prefix for all keys and topic names including a separator (e.g. test/ prod/ tactful/), 
     allows us to use , set to current STAGE by default e.g. test:KEYNAME
@@ -29,7 +33,7 @@ class TactfulBus(abc.ABC):
     interrupt_event: threading.Event
     logger: logging.Logger
 
-    def __init__(self, prefix: str = "", logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, app: Flask, prefix: str = "", logger: Optional[logging.Logger] = None, **kw):
         """Initialize the bus (do it once in the application lifetime)
 
         Note:
@@ -41,6 +45,7 @@ class TactfulBus(abc.ABC):
             consumer_name (str): if not provieded, it is extracted from the current machine/pod/vm host name, a consumer is a unique instance of the service, that gets some of the messages sent to the consumer group. 
             logger (Optional[logging.Logger], optional): Python Logger, if not provieded, one will be created. Defaults to None.
         """
+        self.app = app
         self.prefix = prefix
         self.logger = logger if logger else logging.Logger("redis_bus")
         self.handlers = {}
@@ -140,26 +145,27 @@ class TactfulBus(abc.ABC):
         self.handlers[topic].append(handler)
 
     def _run_handlers(self, msg: Event):
-        topic = msg.topic
-        try:
-            handlers = self.handlers.get(topic, [])
-            event_handlers = []
-            event_handlers = self.event_handlers.get(f"{topic}+{msg.event}", [])
+        with self.app.app_context():
+            topic = msg.topic
+            try:
+                handlers = self.handlers.get(topic, [])
+                event_handlers = []
+                event_handlers = self.event_handlers.get(f"{topic}+{msg.event}", [])
 
-            # if no listners on this topic, report a warning
-            if not handlers or not event_handlers:
-                self.logger.warn(f"no handlers or event listners for this {topic}")
+                # if no listners on this topic, report a warning
+                if not handlers or not event_handlers:
+                    self.logger.warn(f"no handlers or event listners for this {topic}")
 
-            for handler in handlers:
-                if handler:
-                    handler(msg)
-            for event_handler in event_handlers:
-                if event_handler: 
-                    event_handler(msg)
-            self._msg_handled(msg)
-        except Exception as e:
-            self.logger.critical(str(e), exc_info=e)
-            self._on_handler_error(e)
+                for handler in handlers:
+                    if handler:
+                        handler(msg)
+                for event_handler in event_handlers:
+                    if event_handler: 
+                        event_handler(msg)
+                self._msg_handled(msg)
+            except Exception as e:
+                self.logger.critical(str(e), exc_info=e)
+                self._on_handler_error(e)
 
     @abc.abstractmethod
     def _on_handler_error(self, e: Exception):
