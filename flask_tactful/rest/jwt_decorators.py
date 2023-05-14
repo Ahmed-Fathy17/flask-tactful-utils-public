@@ -31,7 +31,8 @@ def profile_access_permission(func):
         else:
             profile = kwargs.get('profile')
             if user_profile_role is not None and profile is not None and int(user_profile_id) != int(profile):
-                return 'Different profile associated with authentication token', 401
+                current_app.logger.error(f"requested {profile} but user has {user_profile_id}")
+                return f"Different profile associated with authentication token", 401
 
         # Fouad = i disabled permissions checking till we get a better method that is more friendly to microservices
         # if user_profile_role is not None and decorated_view.__qualname__.lower() in ROLES.get(user_profile_role.lower()):
@@ -66,6 +67,10 @@ def resource_permission(resource: str, kwargs: Dict) -> bool:
             "body_params": {resource: request.json}
         }
     }
+    if current_app.config.get("TESTING", False):
+        current_app.logger.debug(f"BYPASSING OPA - allowing {resource} and {kwargs}")
+        return True
+
     res = requests.post(url=str(current_app.config.get("AUTHORIZATION_URL")), json=body)
     auth_result = res.json().get("result").get(resource)
     if auth_result:
