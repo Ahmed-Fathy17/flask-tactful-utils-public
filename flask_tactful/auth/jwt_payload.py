@@ -47,3 +47,14 @@ class JWTWebChatPayload(JWTPayload):
 class JWTCredintial:
     user_access_token: Optional[str] = None
     user_refresh_token: Optional[str] = None
+
+@dataclass
+class OauthCreds:
+    client_id: str
+    client_secret:str
+    token_endpoint:str
+
+@dataclass
+class ServiceAccessToken:
+    access_token:str
+    expires_in:int
