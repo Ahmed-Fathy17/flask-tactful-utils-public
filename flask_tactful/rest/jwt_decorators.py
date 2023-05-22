@@ -20,7 +20,7 @@ def profile_access_permission(func):
         if user_profile_id is not None and (kwargs.get('profile_id') is None and kwargs.get('profile') is None):
             kwargs["profile"] = user_profile_id
 
-        elif user.get("role") == 'admin' and kwargs.get('profile') is None:
+        elif user.get("role") == 'admin' and kwargs.get('profile') is None and request.headers.get('Profile'):
             kwargs['profile'] = request.headers.get('Profile')
 
         if user.get("role") == 'admin':
