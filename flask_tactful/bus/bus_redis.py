@@ -41,7 +41,7 @@ class TactfulRedisStreamBus(TactfulBus):
     def from_app(cls, app: Flask, **kw):
         app.after_request
         """Initializes a bus from flask application, it fetches the configuration from flask.config and will use flask.logger for logging
-        REDIS_BUS_URL: redis:// formatted url 
+        REDIS_BUS_URL: redis:// formatted url (or BUS_URL for backward compatibility)
         REDIS_CONSUMER_GROUP: name of the consumer group (usually the service name) that will have multiple instances of the same service reading events in a load balanced fashion
         REDIS_CONSUMER_NAME: name of the consumer, must be the same after restarting, if not provided, the hostname will be used
         STAGE: name of the current environment (e.g. test, prod) to be used as a prefix for apps
@@ -58,7 +58,7 @@ class TactfulRedisStreamBus(TactfulBus):
         """
         return cls(
             app=app,
-            bus_url=app.config.get("REDIS_BUS_URL", None),
+            bus_url=app.config.get("REDIS_BUS_URL", None) or app.config.get("BUS_URL", None),
             group_name=app.config.get("REDIS_CONSUMER_GROUP", None),
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
             prefix=app.config.get("STAGE", "local:"),
