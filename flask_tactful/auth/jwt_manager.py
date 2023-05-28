@@ -74,7 +74,7 @@ def user_token_expired(jwt_header, jwt_payload):
 @jwt_manager.encode_key_loader
 def get_token_encoding_secret(identity: Dict):
     secret: str
-    audiance_secret_name = TactfulJwt.get_key_name_for_audiance(identity['aud'])
+    audiance_secret_name = TactfulJwt.get_key_name_for_audiance(identity.get('aud',None))
     if audiance_secret_name:
         secret = current_app.config[audiance_secret_name]
     else:
