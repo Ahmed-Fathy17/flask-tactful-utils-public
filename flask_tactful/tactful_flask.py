@@ -67,8 +67,25 @@ class TactfulFlask(Flask):
         @self.route("/")
         def home():
             return redirect("/docs")
+        
+        self.cli.add_command(worker_cli)
 
         return self
 
 
 current_app: TactfulFlask = LocalProxy(_find_app)  # type: ignore
+
+
+import click
+from flask.cli import AppGroup
+
+############### Bus Worker
+
+worker_cli = AppGroup('worker')
+
+# run the worker in the foreground, independent from the web server
+@worker_cli.command('run')
+def run_worker():
+    current_app.logger.info("running in WORKER mode, starting bus consumer thread ..")
+    current_app.bus.start() 
+

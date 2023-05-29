@@ -1,0 +1,74 @@
+# check our guides at https://confluence.atlassian.com/x/VYk8Lw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+# image location https://hub.docker.com/r/jourdanrodrigues/python-postgresql/
+
+options:
+  max-time: 15
+image: python:3.8
+
+definitions:
+  steps:
+    - step: &scan
+        name: sonarQube analysis
+        image: sonarsource/sonar-scanner-cli:latest
+        script:
+          - sonar-scanner -Dsonar.projectKey=notifier -Dsonar.sources=./notifier -Dsonar.python.version=3.8 -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} || true
+    - step: &check-vulnerabilities
+        name: check-vulnerabilities
+        image: tactful/vulnr-scan:v1.0.0
+        script:
+          - syft . --scope all-layers -o spdx-json > sbom.json
+          - cat ./sbom.json | grype --fail-on critical > vulnr.txt
+        artifacts: #exporting the sbom.json and vulnr.txt to be available for other steps
+          - sbom.json
+          - vulnr.txt
+    
+    - step: &verify
+        name: Test, Compile, Lint and Build
+        caches: 
+          - pip   
+        script:
+          - pip install awscli
+          - pip install poetry==1.3.2 poethepoet=="0.15.0"
+          - poetry install
+          # - poetry run poe test
+          - poetry run poe compile 
+          - poetry run poe lint
+    
+    - step: &publish
+        name: Test, Compile and lint
+        caches: 
+          - pip   
+        script:
+          - pip install awscli
+          - pip install poetry==1.3.2 poethepoet=="0.15.0"
+          - poetry install
+          - poetry run poe publish  # builds automatically
+          
+pipelines:
+  branches:
+    verify:
+      - step: *verify
+    publish:
+      - step: *publish
+    scan:
+      - step: *check-vulnerabilities
+      - step: *scan
+    
+  tags:
+    '*.*.*':
+      - step: *check-vulnerabilities
+      - step: *scan
+      - step: *verify
+      - step: *publish
+           
+  pull-requests:
+    '**':
+      - step: *check-vulnerabilities
+      - step: *scan
+      - step: *verify
+
+
+

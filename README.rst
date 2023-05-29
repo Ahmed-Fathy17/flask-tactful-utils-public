@@ -28,6 +28,14 @@ Testing
 Publishing
 ==========
 
+NOTE: the pipelines publishes to AWS Artifiact Repo automatically on a tag push
+
+.. code-block:: bash
+
+    poetry run poe version
+
+Alternatively you can publish manually using the following steps:
+
 .. code-block:: bash
 
     poetry shell    # load virtual env to use poe task runner
