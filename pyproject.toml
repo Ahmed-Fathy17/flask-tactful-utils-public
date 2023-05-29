@@ -51,7 +51,7 @@ login = { shell = "export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authoriz
 publish = { shell = "export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain tactful --domain-owner 409160330780 --query authorizationToken --output text` && poetry config repositories.aws https://tactful-409160330780.d.codeartifact.eu-west-1.amazonaws.com/pypi/ucx-pip/ && poetry config http-basic.aws-publish aws $CODEARTIFACT_AUTH_TOKEN  && poetry publish -r aws-publish --skip-existing --build --username aws --password ${CODEARTIFACT_AUTH_TOKEN}" }
 #doc = "pdoc flask_tactful  --no-show-source --docformat google"
 doc= { shell = "make zundler" }
-version = { shell = "poetry version patch && export TAG_VERSION=$(poetry version --short) && git commit -a -m $TAG_VERSION && git tag -a $TAG_VERSION -m $TAG_VERSION  && git push --tags && git push" }
+version = { shell = "poetry version patch && export TAG_VERSION=$(poetry version --short) && git commit -a -m $TAG_VERSION && git tag -a $TAG_VERSION -m $TAG_VERSION  &&  git push && git push --tags" }
 
 
 [[tool.poetry.source]]
