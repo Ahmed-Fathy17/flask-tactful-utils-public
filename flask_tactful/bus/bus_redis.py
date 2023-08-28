@@ -1,5 +1,6 @@
 
 from typing import Any, Dict, Iterable, List, Optional
+import json
 import socket
 import logging
 from pydantic import parse_obj_as
@@ -119,7 +120,10 @@ class TactfulRedisStreamBus(TactfulBus):
 
     def _format_event(self, msg_id: str, msg: Any) -> Event:
         self.logger.debug(f"parsing redis at: {msg_id} message: {msg}")
-        event = Event.parse_obj(msg)
+        # convert json into a dict
+        msg_dict = json.loads(msg["message"])
+        # convert dict into an event
+        event = Event.parse_obj(msg_dict)
         event.msg_id = msg_id
         return event
 
@@ -140,7 +144,11 @@ class TactfulRedisStreamBus(TactfulBus):
         return self.redis.xadd(name=topic, fields=raw_msg, **send_opts)
 
     def publish(self, event: Event, **send_opts) -> str:
-        msg_id = self.send(topic=event.topic, raw_msg=event.dict(), **send_opts)
+        # convert the event into a dict
+        event_dict = event.dict()
+        # convert the dict into a json
+        event_json = json.dumps(event_dict)
+        msg_id = self.send(topic=event.topic, raw_msg={"message": event_json}, **send_opts)
         event.msg_id = msg_id
         return msg_id
 
