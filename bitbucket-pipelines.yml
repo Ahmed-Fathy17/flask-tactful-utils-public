@@ -9,6 +9,10 @@ options:
 image: python:3.8
 
 definitions:
+  services:
+    redis:
+      image: redis
+      memory: 512
   steps:
     - step: &scan
         name: sonarQube analysis
@@ -27,6 +31,8 @@ definitions:
     
     - step: &verify
         name: Verify (Test, Compile, Lint)
+        services:
+          - redis
         caches: 
           - pip   
         script:
