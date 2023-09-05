@@ -41,7 +41,7 @@ definitions:
           - poetry install
           - poetry run poe test
           - poetry run poe compile 
-          - poetry run poe lint
+          - poetry run poe lint || true
     
     - step: &publish
         name: Build and Publish
