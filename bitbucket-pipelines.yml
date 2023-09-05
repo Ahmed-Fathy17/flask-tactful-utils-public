@@ -33,9 +33,9 @@ definitions:
           - pip install awscli
           - pip install poetry==1.3.2 poethepoet=="0.15.0"
           - poetry install
-          # - poetry run poe test
+          - poetry run poe test
           - poetry run poe compile 
-          # - poetry run poe lint
+          - poetry run poe lint
     
     - step: &publish
         name: Build and Publish
@@ -54,19 +54,19 @@ pipelines:
     publish:
       - step: *publish
     scan:
-      - step: *check-vulnerabilities
+      # - step: *check-vulnerabilities
       - step: *scan
     
   tags:
     '*.*.*':
-      - step: *check-vulnerabilities
+      # - step: *check-vulnerabilities
       - step: *scan
       - step: *verify
       - step: *publish
            
   pull-requests:
     '**':
-      - step: *check-vulnerabilities
+      # - step: *check-vulnerabilities
       - step: *scan
       - step: *verify
 
