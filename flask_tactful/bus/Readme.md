@@ -50,22 +50,11 @@ event = Event(
 bus.publish(event)
 
 # Subscribe to a specific event
-bus.add_event_handler("tactfulTopic", "TestEvent", None)
-# Initialize the streams and consumer groups for reading
-bus._prepare_streams()
-
+@bus.on("tactfulTopic", "TestEvent")
+def testevent_handler(event: Event):
+    # Add your logic here
+    pass
+    
 # Start consuming messages
-events_in = bus.read()
-
-# Node Bus do something like this internally
-for e in events_in:
-    if e.event == "TestEvent1":
-        # Add your logic here
-        pass
-    elif e.event == "TestEvent2":
-        # Add your logic here
-        pass
-    else:
-        # Add your logic here
-        pass  
+bus.start() 
 ```
