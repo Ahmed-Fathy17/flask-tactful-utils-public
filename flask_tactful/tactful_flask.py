@@ -1,6 +1,6 @@
 
 from typing import Dict
-from flask import Flask, redirect
+from flask import Flask
 from flask.globals import _find_app
 from werkzeug.local import LocalProxy
 from celery import Celery
@@ -36,38 +36,43 @@ class TactfulFlask(Flask):
     api: Api
     jwt_manager: JWTManager
 
-    def configure(self, app_config: Dict, api_title: str, api_name='api', api_prefix=''):
+    def configure(self, app_config: Dict, api_title: str, api_name, api_version):
         """Configures TactfulFlask customized version
 
         Args:
-            app_config (Dict): Dictionary for Flask config, used to initialzie all the middlewares
+            app_config (Dict): Dictionary for Flask config, used to initialize all the middlewares
             api_title (str): Title at the top of the Swagger documentation
-            api_name (str, optional): name of the API. Defaults to 'api'.
-            api_prefix (str, optional): prefix to start all APIs after /api/v3 or /tenants/v1, etc. Defaults to ''.
+            api_name (str): name of the API.
+            api_version (str): Version of the API.
 
         Returns:
             _type_: _description_
         """
+        # Updates the Flask application configuration
         self.config.update(app_config)
+
+        # initialize middlewares
         self.wsgi_app = ReverseProxied(self.wsgi_app)  # type: ignore
         self.wsgi_app = AuthMiddleware(self.wsgi_app, self.config.get('JWT_HEADER_NAME'))  # type: ignore
 
+        # initialize database
         self.db = database.init_app(self)
+
+        # initialize task queue
         self.celery = worker.init_app(self)
-        self.api = RestApi(self, title=api_title, api_name=api_name, api_prefix=api_prefix)
+
+        # initialize rest api
+        self.api = RestApi(self, title=api_title, api_name=api_name, api_version=api_version)
 
         # initialize bus
         self.bus = TactfulRedisStreamBus.from_app(self)
 
+        # initialize JWT manager
         self.jwt_manager = TactfulJwt(app=self).jwt_manager
 
         # Initialize monitoring
         monitoring.init_app(self)
 
-        @self.route("/")
-        def home():
-            return redirect("/docs")
-        
         self.cli.add_command(worker_cli)
 
         return self
