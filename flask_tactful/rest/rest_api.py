@@ -33,7 +33,7 @@ def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
     app.config.update(RESTPLUS_MASK_SWAGGER=False) # disable masking of sensitive information in Swagger documentation
 
     # Define API prefix
-    api_prefix = f'/{api_name}'
+    api_prefix = f'/{api_name}/{api_version}'
     # Define docs prefix
     docs_prefix = f"/{api_name}/{api_version}"
     
