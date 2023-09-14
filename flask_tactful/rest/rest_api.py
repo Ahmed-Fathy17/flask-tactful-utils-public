@@ -59,10 +59,6 @@ def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
     # Creates a Flask Blueprint for the API 
     api_blueprint = Blueprint(api_name, __name__, url_prefix=api_prefix)
 
-    # Register the Swagger UI blueprint and the API blueprint with the Flask application
-    app.register_blueprint(swaggerui_blueprint, url_prefix=swagger_docs_url)
-    app.register_blueprint(api_blueprint, url_prefix=api_prefix)
-    
     # Creates an instance of Flask-RESTPlus's Api class
     rest_api = Api(app=api_blueprint,
                    url_prefix=api_prefix,
@@ -71,6 +67,9 @@ def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
                    title=title)
     rest_api.add_namespace(default_general_namespace)
 
+    # Register the Swagger UI blueprint and the API blueprint with the Flask application
+    app.register_blueprint(swaggerui_blueprint, url_prefix=swagger_docs_url)
+    app.register_blueprint(api_blueprint, url_prefix=api_prefix)
 
     # ---------------------------------------------------------------------------------------
 
