@@ -33,12 +33,14 @@ def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
     app.config.update(RESTPLUS_MASK_SWAGGER=False) # disable masking of sensitive information in Swagger documentation
 
     # Define API prefix
-    api_prefix = f"/{api_name}/{api_version}"
+    api_prefix = f'/{api_name}'
+    # Define docs prefix
+    docs_prefix = f"/{api_name}/{api_version}"
     
     # Define Routes
-    swagger_url = f"{api_prefix}/swagger.json"
-    swagger_docs_url = f"{api_prefix}/swagger"
-    docs_url = f"{api_prefix}/docs"
+    swagger_url = f"{docs_prefix}/swagger.json"
+    swagger_docs_url = f"{docs_prefix}/swagger"
+    docs_url = f"{docs_prefix}/docs"
 
     # Creates a Swagger UI blueprint and configures the Swagger UI for displaying API documentation.
     swaggerui_blueprint = get_swaggerui_blueprint(
@@ -57,6 +59,10 @@ def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
     # Creates a Flask Blueprint for the API 
     api_blueprint = Blueprint(api_name, __name__, url_prefix=api_prefix)
 
+    # Register the Swagger UI blueprint and the API blueprint with the Flask application
+    app.register_blueprint(swaggerui_blueprint, url_prefix=swagger_docs_url)
+    app.register_blueprint(api_blueprint, url_prefix=api_prefix)
+    
     # Creates an instance of Flask-RESTPlus's Api class
     rest_api = Api(app=api_blueprint,
                    url_prefix=api_prefix,
@@ -65,9 +71,6 @@ def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
                    title=title)
     rest_api.add_namespace(default_general_namespace)
 
-    # Register the Swagger UI blueprint and the API blueprint with the Flask application
-    app.register_blueprint(swaggerui_blueprint, url_prefix=swagger_docs_url)
-    app.register_blueprint(api_blueprint, url_prefix=api_prefix)
 
     # ---------------------------------------------------------------------------------------
 
