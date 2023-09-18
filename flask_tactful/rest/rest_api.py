@@ -81,7 +81,7 @@ def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
     def show_api_docs():
         """Redirects to the homepage in our case it is the orders page."""
         return render_template_string(template, swagger_url=swagger_url)
-    @app.route("/")
+    @app.route(api_prefix)
     def docs():
         return redirect(docs_url)
     return rest_api
