@@ -10,7 +10,7 @@ def init_app(app):
     # Configure Bugsnag
     bugsnag.configure(
         api_key=app.config.get('BUGSNAG_KEY', "a250c2a3659a4a81effa97aa7bf30fe6"),
-        notify_release_stages=["production", "staging", "beta", "alpha", "demo", "test", "qa", "eco", "channels", "eng"],
+        notify_release_stages=["dstnyengage", "production", "staging", "beta", "alpha", "demo", "test", "qa", "eco", "channels", "eng"],
         release_stage=app.config.get('STAGE', 'development'),
         auto_notify=True,
         # project_root = "/path/to/your/app",
