@@ -76,7 +76,7 @@ def resource_permission(resource: str, kwargs: Dict) -> bool:
             "token": token.split()[-1],
             "query_params": {resource: request.args.to_dict()},
             "path_params": {resource: kwargs},
-            "body_params": {resource: request.json}
+            "body_params": {resource: request.get_json(silent=request.method == 'GET')}
         }
     }
     if current_app.config.get("TESTING", False):
