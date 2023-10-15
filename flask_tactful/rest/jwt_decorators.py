@@ -42,6 +42,20 @@ def profile_access_permission(func):
     return decorated_view
 
 
+def is_authorized(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+
+        user = get_current_user()
+        if user.get("role") == 'admin':
+            return func(*args, **kwargs)
+
+        if resource_permission(decorated_view.__qualname__.lower(), kwargs):
+            return func(*args, **kwargs)
+
+    return decorated_view
+
+
 def require_admin(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
