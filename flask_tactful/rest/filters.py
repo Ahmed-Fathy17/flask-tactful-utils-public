@@ -11,8 +11,9 @@ class RestFilter:
 
     def clean_dict(self, dict_obj: dict) -> dict:
         """ removes empty values from a dict """
-        dict_obj = dict((k, v) for k, v in dict_obj.items() if v)
-        return dict_obj
+        if not dict_obj:
+            return dict_obj
+        return dict((k, v) for k, v in dict_obj.items() if v)
 
     def clean_request_dict(self, dict_obj: dict) -> dict:
         """ removes empty values from a dict """
