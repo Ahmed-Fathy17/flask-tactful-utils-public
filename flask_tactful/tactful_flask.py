@@ -12,7 +12,7 @@ from flask_migrate import Migrate
 from . import database
 __all__ = ["TactfulFlask"]
 
-from .bus import TactfulBus, TactfulRedisStreamBus, publish_bus_apis
+from .bus import TactfulBus, TactfulRedisStreamBus
 from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
 from .rest import RestApi
 from .auth.jwt_manager import TactfulJwt
@@ -66,8 +66,6 @@ class TactfulFlask(Flask):
 
         # initialize bus
         self.bus = TactfulRedisStreamBus.from_app(self)
-        publish_bus_apis(self.api, self.bus)
-
 
         # initialize JWT manager
         self.jwt_manager = TactfulJwt(app=self).jwt_manager

@@ -1,22 +1,23 @@
 
 from flask_restx import Namespace, Resource, fields, Api
+from typing import List
+
+from ..ddd import Event
 from ..rest import class_to_restplus , allow_cors
-from . import TactfulBus
 
-bus_namespace = Namespace('events', "Events")
+bus_namespace = Namespace('Events', "Events")
 
-def publish_bus_apis(api: Api,  bus: TactfulBus):
-
-    expected_events = bus.event_handlers.keys()
+def publish_bus_apis(api: Api, expected_events: List[str], published_events: List[Event]):
+    
     expected_event_fields = dict()
     for event_name in expected_events:
         ev = event_name.split("+")
         expected_event_fields[ev[1]] = fields.String(description=f"Event {ev[1]} from tipic {ev[0]}", example=f"{ev[0]}")
 
-    published_events = bus.published_events
     published_event_fields = dict()
     for event in published_events:
-        event_name = event.__class__.__name__
+        
+        event_name = event.__name__ # type: ignore[attr-defined]
         published_event_model = bus_namespace.model(event_name, class_to_restplus(event))
         published_event_fields[event_name] = fields.Nested(published_event_model, description=f"Event {event_name}")
 
@@ -28,6 +29,10 @@ def publish_bus_apis(api: Api,  bus: TactfulBus):
     # because these are dynamic, we cannot use them as decorators at the definition of the class
     bus_namespace.marshal_with(expected_events_model)(ExpectedEvents.get)
     bus_namespace.marshal_with(published_events_model)(PublishedEvents.get)
+    # bus_namespace.add_resource(PublishedEvents, '/published')
+    print(published_event_fields)
+    print(published_events_model._schema)
+    print(PublishedEvents.get.__apidoc__)
 
     api.add_namespace(bus_namespace, path="/events")
     
