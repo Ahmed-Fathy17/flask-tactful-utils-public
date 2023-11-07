@@ -3,7 +3,6 @@ from typing import Any, Dict, Iterable, List, Optional
 import json
 import socket
 import logging
-from pydantic import parse_obj_as
 from flask import Flask
 from redis import Redis
 from redis.exceptions import RedisError
@@ -123,7 +122,7 @@ class TactfulRedisStreamBus(TactfulBus):
         # convert json into a dict
         msg_dict = json.loads(msg["message"])
         # convert dict into an event
-        event = Event.parse_obj(msg_dict)
+        event = Event.model_validate(msg_dict)
         event.msg_id = msg_id
         return event
 
@@ -145,7 +144,7 @@ class TactfulRedisStreamBus(TactfulBus):
 
     def publish(self, event: Event, **send_opts) -> str:
         # convert the event into a dict
-        event_dict = event.dict()
+        event_dict = event.model_dump()
         # convert the dict into a json
         event_json = json.dumps(event_dict)
         msg_id = self.send(topic=event.topic, raw_msg={"message": event_json}, **send_opts)
