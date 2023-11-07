@@ -1,18 +1,16 @@
 
 from flask_restx import Namespace, Resource, fields, Api
-from typing import List
+from typing import List, Any, Dict
 
 from ..ddd import Event
 from ..rest import class_to_restplus , allow_cors
 
 bus_namespace = Namespace('Events', "Events")
 
-def publish_bus_apis(api: Api, expected_events: List[str], published_events: List[Event]):
-    
+def publish_bus_apis(api: Api, expected_events: Dict[str, str], published_events: List[Event]):
     expected_event_fields = dict()
-    for event_name in expected_events:
-        ev = event_name.split("+")
-        expected_event_fields[ev[1]] = fields.String(description=f"Event {ev[1]} from tipic {ev[0]}", example=f"{ev[0]}")
+    for (event_name, topic) in expected_events.items():
+        expected_event_fields[event_name] = fields.String(description=f"Event {event_name} from topic {topic}", example=f"{topic}")
 
     published_event_fields = dict()
     for event in published_events:
@@ -29,19 +27,21 @@ def publish_bus_apis(api: Api, expected_events: List[str], published_events: Lis
     # because these are dynamic, we cannot use them as decorators at the definition of the class
     bus_namespace.marshal_with(expected_events_model)(ExpectedEvents.get)
     bus_namespace.marshal_with(published_events_model)(PublishedEvents.get)
-    # bus_namespace.add_resource(PublishedEvents, '/published')
-    print(published_event_fields)
-    print(published_events_model._schema)
-    print(PublishedEvents.get.__apidoc__)
+
+    ExpectedEvents.reply_with = expected_events;
+    PublishedEvents.reply_with = [ ev.__name__ for ev in published_events ]; # type: ignore[attr-defined]
 
     api.add_namespace(bus_namespace, path="/events")
     
 
 @bus_namespace.route('/expected')
 class ExpectedEvents(Resource):
+    reply_with: Any = None
+    
     @allow_cors
     def get(self):
-        return 200
+        
+        return ExpectedEvents.reply_with, 200
     
     @allow_cors
     @bus_namespace.doc(False)
@@ -51,9 +51,11 @@ class ExpectedEvents(Resource):
 
 @bus_namespace.route('/published')
 class PublishedEvents(Resource):
+    reply_with: Any = None
+
     @allow_cors
     def get(self):
-        return 200
+        return PublishedEvents.reply_with, 200
     
     @allow_cors
     @bus_namespace.doc(False)

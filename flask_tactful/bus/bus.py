@@ -223,11 +223,10 @@ class TactfulBus(abc.ABC):
             events (List[Event]): Events schema to be published by the application
         """
         cls.published_events.extend(events)
-        print(cls.published_events)
 
 
     def publish_apis(self, api: Api):
 
-        expected_events = list(self.event_handlers.keys())
+        expected_events = {  kv[1]: kv[0] for kv in [ ev.split("+") for ev in list(self.event_handlers.keys())]}
         published_events = TactfulBus.published_events
         publish_bus_apis(api, expected_events, published_events)
