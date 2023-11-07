@@ -29,7 +29,11 @@ class TactfulBus(abc.ABC):
 
     """ List of callback handler function for each event, use add_event_handler() or on(), dont use directly"""
     event_handlers: Dict[str, List[TactfulBusEventHandler]]
-    
+
+    """ List of events that the application will publish, this will be used to document the bus topics and the events that are published on them"""
+    published_events: List[Event]
+
+    """ Event to be set when the application is interrupted, use it to stop the consumer """
     interrupt_event: threading.Event
     logger: logging.Logger
 
@@ -193,3 +197,12 @@ class TactfulBus(abc.ABC):
         self.logger.info("Consuming Kafka events...")
         t = threading.Thread(target=self._start_reading)
         t.start()
+
+    def register_published_events(self, events: List[Event]):
+        """ list of events that the application will publish, this will be used to document the bus topics and the events that are published on them
+        you can call this function multiple times 
+
+        Args:
+            events (List[Event]): Events schema to be published by the application
+        """
+        self.published_events.extend(events)
