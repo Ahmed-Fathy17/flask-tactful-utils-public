@@ -1,4 +1,5 @@
 
+import time
 from typing import Any, Dict, Iterable, List, Optional
 import json
 import socket
@@ -131,11 +132,19 @@ class TactfulRedisStreamBus(TactfulBus):
         super()._start_reading()
         self._prepare_streams()
         while (True):
-            events = self.read(count=1)
-            for event in events:
-                self._run_handlers(event)
+            try:
+                events = self.read(count=1)
+                for event in events:
+                    self._run_handlers(event)
 
-            self._stop_if_interrupted()
+                self._stop_if_interrupted()
+            except RedisError as e:
+                # Handle the connection error
+                self.logger.error("Redis connection error: %s", str(e))
+                # Wait for a while before attempting to reconnect
+                time.sleep(5)
+
+
 
     def shutdown(self, signal: int, frame: Any):
         self.redis.close()
