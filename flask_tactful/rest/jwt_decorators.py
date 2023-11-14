@@ -21,9 +21,9 @@ def profile_access_permission(func):
 
         user_profile_role = user.get("profile_role", None)
         user_profile_id = user.get('profile_id', None)  # Using profile name will force making a DB call before the request which is not a ideal case.
+
         if user_profile_id is not None and (kwargs.get('profile_id') is None and kwargs.get('profile') is None):
             kwargs["profile"] = user_profile_id
-
         elif is_admin(user) and kwargs.get('profile') is None and request.headers.get('Profile'):
             kwargs['profile'] = request.headers.get('Profile')
 
@@ -32,9 +32,12 @@ def profile_access_permission(func):
 
 
         profile = kwargs.get('profile')
-        if user_profile_role is not None and profile is not None and int(user_profile_id) != int(profile):
-            current_app.logger.error(f"requested {profile} but user has {user_profile_id}")
+        if user_profile_id is not None and profile is not None and int(user_profile_id) != int(profile):
+            current_app.logger.error(f"requested profile:{profile} but user has user_profile_id:{user_profile_id}")
             return f"Different profile associated with authentication token", 401
+
+        if profile is None:
+            raise UnAuthorizedRoleException(description="profile_id is None")
 
         # Fouad = i disabled permissions checking till we get a better method that is more friendly to microservices
         # if user_profile_role is not None and decorated_view.__qualname__.lower() in ROLES.get(user_profile_role.lower()):
