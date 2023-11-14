@@ -7,6 +7,10 @@ from ..auth.jwt_manager import get_current_user
 from ..exceptions import UnAuthorizedRoleException
 
 
+def is_admin(user) -> bool:
+    user = get_current_user() if user is None else user
+    return user.get("role") in ['admin', 'super_admin']
+
 def profile_access_permission(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
@@ -20,10 +24,10 @@ def profile_access_permission(func):
         if user_profile_id is not None and (kwargs.get('profile_id') is None and kwargs.get('profile') is None):
             kwargs["profile"] = user_profile_id
 
-        elif user.get("role") == 'admin' and kwargs.get('profile') is None and request.headers.get('Profile'):
+        elif is_admin(user) and kwargs.get('profile') is None and request.headers.get('Profile'):
             kwargs['profile'] = request.headers.get('Profile')
 
-        if user.get("role") == 'admin':
+        if is_admin(user):
             return func(*args, **kwargs)
 
 
@@ -47,7 +51,7 @@ def is_authorized(func):
     def decorated_view(*args, **kwargs):
 
         user = get_current_user()
-        if user.get("role") == 'admin':
+        if is_admin(user):
             return func(*args, **kwargs)
 
         if resource_permission(decorated_view.__qualname__.lower(), kwargs):
@@ -60,7 +64,7 @@ def require_admin(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         user = get_current_user()
-        if user.get("role") in ['admin', 'billing_admin', 'system_admin']:
+        if is_admin(user):
             return func(*args, **kwargs)
         else:
             return 'Token provided does not have permissions to access this resource.', 401
