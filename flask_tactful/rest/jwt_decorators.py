@@ -95,5 +95,5 @@ def resource_permission(resource: str, kwargs: Dict) -> bool:
     if auth_result:
         if auth_result.get("allow"):
             return True
-        raise UnAuthorizedRoleException(description=json.dumps(auth_result.get('explain')))
+        raise UnAuthorizedRoleException(description=auth_result.get('explain'))
     raise UnAuthorizedRoleException()
