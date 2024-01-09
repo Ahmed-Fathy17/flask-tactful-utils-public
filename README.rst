@@ -11,6 +11,58 @@ Installation
 2. Install poetry `pip install poetry` or using these setps https://python-poetry.org/docs/#installation
 3. Install dependencies `poetry install`
 
+Upgrade to Python 3.9
+=====================
+- **Update Python Version**
+    1. Open **`pyproject.toml`** file.
+    2. Locate the **`[tool.poetry.dependencies]`** section.
+    3. Update the **`python`** version to **`"~3.9"`**.
+        
+        ```toml
+        [tool.poetry.dependencies]
+        python = "~3.9"
+        ```
+        
+    4. Save the changes.
+- **Install Python 3.9**
+    - On Ubuntu/Debian:
+    
+    ```bash
+    sudo apt-get update
+    sudo apt-get install python3.9
+    sudo apt-get install python3.9-distutils
+    ```
+    
+- **Update Poetry Environment**
+    1. Open a terminal in the project directory.
+    2. Run the following commands to update the Python version used by Poetry and recreate the virtual environment.
+        
+        ```bash
+        poetry env use 3.9 
+        [OR]
+        poetry env use /usr/bin/python3.9
+        
+        poetry run pip install --upgrade pip setuptools
+        
+        poetry run poe login
+        poetry install
+        ```
+        
+- **Update Dependencies (Optional)**
+    If there are newer versions of your dependencies that are compatible with Python 3.9, you may consider updating them. 
+    
+    ```bash
+    poetry update
+    ```
+    
+- **Verify the Python Version**        
+    ```bash
+    poetry run python --version
+    ```
+        
+
+This should display Python 3.9.x.
+
 Developer Guide
 ===============
 
