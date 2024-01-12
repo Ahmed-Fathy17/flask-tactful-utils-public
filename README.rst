@@ -40,13 +40,17 @@ Upgrade to Python 3.11
         pyenv install 3.11
         pyenv update
         
+        poetry env use 3.11
+        [OR]
+        poetry env use /usr/bin/python3.11
+
         poetry run pip install --upgrade pip setuptools
         
         poetry run poe login
         
         
 - **Update Dependencies (Optional)**
-    If there are newer versions of your dependencies that are compatible with Python 3.9, you may consider updating them. 
+    If there are newer versions of your dependencies that are compatible with Python 3.11, you may consider updating them. 
     
 .. code-block:: bash
 
