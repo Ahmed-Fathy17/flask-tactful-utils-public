@@ -63,7 +63,7 @@ class TactfulRedisStreamBus(TactfulBus):
             group_name=app.config.get("REDIS_CONSUMER_GROUP", None),
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
             prefix=app.config.get("STAGE", "local:"),
-            max_msg_len=app.config.get("REDIS_MAX_MSG_LEN", 1024*50*1000),
+            max_msg_len=app.config.get("REDIS_MAX_MSG_LEN", 1024*100*1000),
             logger=app.logger,
             **kw
         )
