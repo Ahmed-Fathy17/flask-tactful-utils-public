@@ -63,15 +63,17 @@ class TactfulRedisStreamBus(TactfulBus):
             group_name=app.config.get("REDIS_CONSUMER_GROUP", None),
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
             prefix=app.config.get("STAGE", "local:"),
+            max_msg_len=app.config.get("REDIS_MAX_MSG_LEN", 1024*50*1000),
             logger=app.logger,
             **kw
         )
 
-    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", max_msg_len: int = 1024*50*1000, logger: Optional[logging.Logger] = None, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
+        self.max_msg_len = max_msg_len
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
 
@@ -141,7 +143,7 @@ class TactfulRedisStreamBus(TactfulBus):
         self.redis.close()
 
     def send(self, topic: str, raw_msg: Dict, **send_opts) -> str:
-        return self.redis.xadd(name=topic, fields=raw_msg, **send_opts)
+        return self.redis.xadd(name=topic, fields=raw_msg, maxlen=self.max_msg_len, **send_opts)
 
     def publish(self, event: Event, **send_opts) -> str:
         # convert the event into a dict
