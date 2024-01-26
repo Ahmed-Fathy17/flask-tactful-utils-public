@@ -73,6 +73,9 @@ class TactfulFlask(Flask):
         # Initialize monitoring
         monitoring.init_app(self)
 
+        # Error handler 
+        monitoring.error_handler(self.api)
+
         self.cli.add_command(worker_cli)
 
         return self

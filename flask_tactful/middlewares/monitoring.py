@@ -2,6 +2,8 @@ import logging
 import bugsnag
 from bugsnag.flask import handle_exceptions
 from bugsnag.handlers import BugsnagHandler
+from jwt.exceptions import DecodeError , ExpiredSignatureError
+from flask_jwt_extended.exceptions import NoAuthorizationError
 
 
 def init_app(app):
@@ -42,6 +44,34 @@ def init_app(app):
     # send only WARNING-level logs and above
     bugsnag_handler.setLevel(logging.WARNING)
     app.logger.addHandler(bugsnag_handler)
+
+
+def error_handler(app):
+    @app.errorhandler(Exception)
+    def handle_no_authorization_error(error):
+        status_code, description = determine_status_code(error)
+        return {'message': description}, status_code
+
+    def determine_status_code(error):
+        bugsnag.notify(error)
+        app.logger.error("Error %s", error)
+
+        if getattr(error, 'code', None):
+            return error.code, str(error)
+        elif isinstance(error, NoAuthorizationError):
+            return 401, str(error)
+        elif isinstance(error, DecodeError):
+            str_error = f"can't decode token: {error}"
+            print(str_error)
+            return 401, str_error
+        elif isinstance(error, ValueError) and not error.code:
+            str_error = "token not valid"
+            return 401, str_error
+        elif isinstance(error, ExpiredSignatureError):
+            str_error = f"token expired: {error}"
+            return 401, str_error
+    
+        return 400, str(error)
 
 
 # we could use @app.errorhandler(Exception) here, but this will be too broad and will make development harder.
