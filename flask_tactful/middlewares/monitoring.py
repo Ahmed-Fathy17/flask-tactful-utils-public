@@ -48,11 +48,11 @@ def init_app(app):
 
 def error_handler(app):
     @app.errorhandler(Exception)
-    def handle_no_authorization_error(error):
-        status_code, description = determine_status_code(error)
+    def handle_errors(error):
+        status_code, description = determine_message_and_code(error)
         return {'message': description}, status_code
 
-    def determine_status_code(error):
+    def determine_message_and_code(error):
         bugsnag.notify(error)
         app.logger.error("Error %s", error)
 
