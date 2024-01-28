@@ -53,8 +53,6 @@ def error_handler(app):
         return {'message': description}, status_code
 
     def determine_message_and_code(error):
-        bugsnag.notify(error)
-        app.logger.error("Error %s", error)
 
         if getattr(error, 'code', None):
             return error.code, str(error)
@@ -62,7 +60,6 @@ def error_handler(app):
             return 401, str(error)
         elif isinstance(error, DecodeError):
             str_error = f"can't decode token: {error}"
-            print(str_error)
             return 401, str_error
         elif isinstance(error, ValueError) and not error.code:
             str_error = "token not valid"
