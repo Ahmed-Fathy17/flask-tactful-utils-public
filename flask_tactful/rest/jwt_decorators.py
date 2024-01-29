@@ -83,7 +83,7 @@ def resource_permission(resource: str, kwargs: Dict) -> bool:
             "token": token.split()[-1],
             "query_params": {resource: request.args.to_dict()},
             "path_params": {resource: kwargs},
-            "body_params": {resource: request.get_json(silent=request.method == 'GET')}
+            "body_params": {resource: request.get_json(silent=True)}
         }
     }
     if current_app.config.get("TESTING", False):
@@ -95,5 +95,5 @@ def resource_permission(resource: str, kwargs: Dict) -> bool:
     if auth_result:
         if auth_result.get("allow"):
             return True
-        raise UnAuthorizedRoleException(description=json.dumps(auth_result.get('explain')))
+        raise UnAuthorizedRoleException(description=auth_result.get('explain'))
     raise UnAuthorizedRoleException()

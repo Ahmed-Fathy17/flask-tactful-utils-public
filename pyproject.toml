@@ -1,22 +1,22 @@
 [tool.poetry]
 name = "flask-tactful"
-version = "1.1.9"
+version = "3.0.1"
 description = "Flask Utilities used by Tactful AI services"
 authors = ["Tactful AI <dev@tactful.ai>"]
 
 [tool.poetry.dependencies]
-python = "~3.8"
-Flask = "2.1.2"
-Werkzeug = "2.0.3"   
+python = "~3.11"
+Flask = "2.3.3"
+Werkzeug = "2.3.7"
 alembic = "^1.8.0"
 Flask-Admin = "^1.6.0"
 bugsnag = "^4.2.1"
 SQLAlchemy = "^1.4.39"
 Flask-JWT-Extended = "^4.4.2"
 flask-swagger-ui = "^4.11.1"
-Flask-SQLAlchemy = "^2.5.1"
+Flask-SQLAlchemy = "^3.0.5"
 Flask-Migrate = "^3.1.0"
-flask-restx = "^0.5.1"
+flask-restx = "^1.3.0"
 flask-kafka = "^0.0.3"
 Flask-Login = "^0.6.1"
 # Please do not change this version, unless getting stuck after redis connection loss is fixed

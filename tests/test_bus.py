@@ -21,7 +21,8 @@ def bus_client(reset_bus):
         app=Flask(__name__),
         bus_url=TEST_REDIS_DB,
         group_name="tests",
-        consumer_name="client1"
+        consumer_name="client1",
+        bus_msg_limit=5
     )
     return client1
 

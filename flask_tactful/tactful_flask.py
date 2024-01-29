@@ -1,7 +1,7 @@
 
 from typing import Dict
 from flask import Flask
-from flask.globals import _find_app
+from flask.globals import _cv_app
 from werkzeug.local import LocalProxy
 from celery import Celery
 from flask_sqlalchemy import SQLAlchemy
@@ -81,8 +81,7 @@ class TactfulFlask(Flask):
         return self
 
 
-current_app: TactfulFlask = LocalProxy(_find_app)  # type: ignore
-
+current_app: TactfulFlask = LocalProxy(_cv_app, "app")  # type: ignore
 
 import click
 from flask.cli import AppGroup
