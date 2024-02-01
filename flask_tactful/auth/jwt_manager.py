@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Optional
 from jwt import PyJWKClient
 from flask import current_app, jsonify, request
@@ -27,6 +28,8 @@ class TactfulJwt():
     def __init__(self, app):
         jwt_manager.init_app(app)
         self.jwt_manager = jwt_manager
+        app.config.update(JWKS_CACHE_DURATION_SECONDS=int(os.environ.get("JWKS_CACHE_DURATION_SECONDS", 60 * 60)))
+        TactfulJwt.get_jwk.jwks_client = PyJWKClient(app.config.get("JWKS_URL"), cache_jwk_set=True, lifespan=app.config.get("JWKS_CACHE_DURATION_SECONDS"))
 
     @staticmethod
     def get_jwt_identity() -> JWTPayload:
@@ -45,9 +48,7 @@ class TactfulJwt():
     @staticmethod
     def get_jwk(kid: str):
         try:
-            jwks_url = current_app.config.get("JWKS_URL")
-            jwks_client = PyJWKClient(jwks_url)
-            signing_key = jwks_client.get_signing_key(kid)
+            signing_key = TactfulJwt.get_jwk.jwks_client.get_signing_key(kid)
             if signing_key and signing_key.key:
                 return signing_key.key
         except Exception as e:
