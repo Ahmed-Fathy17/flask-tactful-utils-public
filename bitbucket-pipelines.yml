@@ -6,7 +6,7 @@
 
 options:
   max-time: 15
-image: python:3.11
+image: python:3.8
 
 definitions:
   services:
