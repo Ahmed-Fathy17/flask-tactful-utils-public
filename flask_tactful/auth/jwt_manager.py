@@ -48,7 +48,7 @@ class TactfulJwt():
     @staticmethod
     def get_jwk(kid: str):
         try:
-            signing_key = TactfulJwt.get_jwk.jwks_client.get_signing_key(kid)
+            signing_key = TactfulJwt.get_jwk.jwks_client.get_signing_key(kid) # type: ignore
             if signing_key and signing_key.key:
                 return signing_key.key
         except Exception as e:
