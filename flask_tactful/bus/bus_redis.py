@@ -3,7 +3,6 @@ from typing import Any, Dict, Iterable, List, Optional
 import json
 import socket
 import logging
-from pydantic import parse_obj_as
 from flask import Flask
 from redis import Redis
 from redis.exceptions import RedisError
@@ -63,17 +62,17 @@ class TactfulRedisStreamBus(TactfulBus):
             group_name=app.config.get("REDIS_CONSUMER_GROUP", None),
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
             prefix=app.config.get("STAGE", "local:"),
-            max_msg_len=app.config.get("REDIS_MAX_MSG_LEN", 1024*100*1000),
             logger=app.logger,
+            approximate_trimming=app.config.get("REDIS_APPROXIMATE_TRIMMING", True), # it leads to better performance
             **kw
         )
 
-    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", max_msg_len: int = 1024*50*1000, logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", approximate_trimming: bool = True, logger: Optional[logging.Logger] = None, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
-        self.max_msg_len = max_msg_len
+        self.approximate_trimming = approximate_trimming
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
 
@@ -142,15 +141,15 @@ class TactfulRedisStreamBus(TactfulBus):
     def shutdown(self, signal: int, frame: Any):
         self.redis.close()
 
-    def send(self, topic: str, raw_msg: Dict, **send_opts) -> str:
-        return self.redis.xadd(name=topic, fields=raw_msg, maxlen=self.max_msg_len, **send_opts)
+    def send(self, topic: str, max_stream_len: int, raw_msg: Dict, **send_opts) -> str:
+        return self.redis.xadd(name=topic, fields=raw_msg, maxlen=max_stream_len, approximate=self.approximate_trimming, **send_opts)
 
     def publish(self, event: Event, **send_opts) -> str:
         # convert the event into a dict
         event_dict = event.dict()
         # convert the dict into a json
         event_json = json.dumps(event_dict)
-        msg_id = self.send(topic=event.topic, raw_msg={"message": event_json}, **send_opts)
+        msg_id = self.send(topic=event.topic, max_stream_len=event.max_stream_len, raw_msg={"message": event_json}, **send_opts)
         event.msg_id = msg_id
         return msg_id
 
