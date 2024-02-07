@@ -76,7 +76,7 @@ class TactfulBus(abc.ABC):
     
 
     @abc.abstractmethod
-    def send(self, topic: str, raw_msg: Dict, **send_opts) -> str:
+    def send(self, topic: str, max_stream_len: int, raw_msg: Dict, **send_opts) -> str:
         """**Low-level** sends a message to the bus topic specified
         the message is specified as native dict object,
 
