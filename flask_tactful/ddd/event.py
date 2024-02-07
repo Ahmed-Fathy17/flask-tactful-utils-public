@@ -8,7 +8,7 @@ class Event(BaseModel, extra='allow'):
     """
 
     """ version identifier, if the schema changes, please increment """
-    version: int = 1
+    version: int = 2
 
     """ Bus topic, or the queue name in the busses that don't support topics (e.g. tactful.billing) """
     topic: str
@@ -21,3 +21,6 @@ class Event(BaseModel, extra='allow'):
 
     """ profile ID (tenant id) for the workspace that generated the event """
     profile_id: int
+
+    """max length of the stream, if the number of entries exceeds this, the oldest entries will be trimmed"""
+    max_stream_len: int = 10*1000*1000
