@@ -137,7 +137,7 @@ def test_max_stream_length(bus_client: TactfulRedisStreamBus):
 
     # Publish more events than the maximum stream length
     events_out = [
-        Event(topic="billing", event="CreditCardExpired", profile_id=i, max_stream_len=max_stream_len)
+        Event(version = 2, topic="billing", event="CreditCardExpired", profile_id=i, max_stream_len=max_stream_len)
         for i in range(max_stream_len + extra_events)
     ]
     for event in events_out:
