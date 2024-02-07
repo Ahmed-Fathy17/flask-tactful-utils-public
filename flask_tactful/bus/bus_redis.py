@@ -108,7 +108,7 @@ class TactfulRedisStreamBus(TactfulBus):
         Returns:
             List[Event]: _description_
         """
-        streams = self.get_topics()
+        streams = self.get_topics()           
         events: List[Event] = []
         self.logger.debug(f"blocking on streams {streams}")
         streams_results = self.redis.xreadgroup(groupname=self.group_name, consumername=self.consumer_name, streams={s: '>' for s in streams}, count=count, block=50000)
@@ -124,19 +124,22 @@ class TactfulRedisStreamBus(TactfulBus):
         # convert json into a dict
         msg_dict = json.loads(msg["message"])
         # convert dict into an event
-        event = Event.parse_obj(msg_dict)
+        event = Event.model_validate(msg_dict)
         event.msg_id = msg_id
         return event
 
     def _start_reading(self):
         super()._start_reading()
         self._prepare_streams()
-        while (True):
-            events = self.read(count=1)
-            for event in events:
-                self._run_handlers(event)
+        if not self.get_topics():
+            self.logger.warn("no streams to read from, bus is not functional")
+        else: 
+            while (True):
+                events = self.read(count=1)
+                for event in events:
+                    self._run_handlers(event)
 
-            self._stop_if_interrupted()
+                self._stop_if_interrupted()
 
     def shutdown(self, signal: int, frame: Any):
         self.redis.close()
@@ -146,7 +149,7 @@ class TactfulRedisStreamBus(TactfulBus):
 
     def publish(self, event: Event, **send_opts) -> str:
         # convert the event into a dict
-        event_dict = event.dict()
+        event_dict = event.model_dump()
         # convert the dict into a json
         event_json = json.dumps(event_dict)
         msg_id = self.send(topic=event.topic, max_stream_len=event.max_stream_len, raw_msg={"message": event_json}, **send_opts)

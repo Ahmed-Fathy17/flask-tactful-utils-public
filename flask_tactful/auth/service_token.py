@@ -1,6 +1,6 @@
 from datetime import datetime
 import requests
-from . import OauthCreds,ServiceAccessToken
+from .jwt_payload import OauthCreds,ServiceAccessToken
 import math
 
 class ServiceToken:
