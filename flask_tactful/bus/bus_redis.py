@@ -63,16 +63,18 @@ class TactfulRedisStreamBus(TactfulBus):
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
             prefix=app.config.get("STAGE", "local:"),
             logger=app.logger,
+            max_stream_len=app.config.get("REDIS_MAX_STREAM_LEN", 10*1000*1000),
             approximate_trimming=app.config.get("REDIS_APPROXIMATE_TRIMMING", True), # it leads to better performance
             **kw
         )
 
-    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", approximate_trimming: bool = True, logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", max_stream_len:int = 10*1000*1000, approximate_trimming: bool = True, logger: Optional[logging.Logger] = None, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
         self.approximate_trimming = approximate_trimming
+        self.max_stream_len = max_stream_len
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
 
@@ -152,7 +154,8 @@ class TactfulRedisStreamBus(TactfulBus):
         event_dict = event.model_dump()
         # convert the dict into a json
         event_json = json.dumps(event_dict)
-        msg_id = self.send(topic=event.topic, max_stream_len=event.max_stream_len, raw_msg={"message": event_json}, **send_opts)
+        max_stream_len = event.max_stream_len or self.max_stream_len # accept self.max_stream_len if event.max_stream_len is None
+        msg_id = self.send(topic=event.topic, max_stream_len=max_stream_len, raw_msg={"message": event_json}, **send_opts)
         event.msg_id = msg_id
         return msg_id
 
