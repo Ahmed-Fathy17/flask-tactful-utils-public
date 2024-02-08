@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../auth"
+		},
+		{
+			"path": "../tenants"
+		},
+		{
+			"path": "../erp-microservice"
+		},
+		{
+			"path": "../attachments-microservice"
+		}
+	],
+	"settings": {}
+}
