@@ -23,4 +23,4 @@ class Event(BaseModel, extra='allow'):
     profile_id: int
 
     """max length of the stream, if the number of entries exceeds this, the oldest entries will be trimmed"""
-    max_stream_len: int = None # type: ignore
+    max_stream_len: int = 0 # type: ignore

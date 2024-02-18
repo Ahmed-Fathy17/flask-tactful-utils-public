@@ -154,7 +154,7 @@ class TactfulRedisStreamBus(TactfulBus):
         event_dict = event.model_dump()
         # convert the dict into a json
         event_json = json.dumps(event_dict)
-        max_stream_len = event.max_stream_len or self.max_stream_len # accept self.max_stream_len if event.max_stream_len is None
+        max_stream_len = event.max_stream_len if event.max_stream_len != 0 else self.max_stream_len # accept self.max_stream_len if event.max_stream_len is None
         msg_id = self.send(topic=event.topic, max_stream_len=max_stream_len, raw_msg={"message": event_json}, **send_opts)
         event.msg_id = msg_id
         return msg_id
