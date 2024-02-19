@@ -3,10 +3,14 @@ from typing import Dict, Optional
 from jwt import PyJWKClient
 from flask import current_app, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, current_user
+
+from .jwks_manager import JwksManager
 from .jwt_payload import JWTPayload
 from functools import wraps
 
 jwt_manager = JWTManager()
+jwks_manager = JwksManager()
+
 
 def get_current_user():
     if current_user and isinstance(current_user.get('sub'), str):
@@ -29,7 +33,7 @@ class TactfulJwt():
         jwt_manager.init_app(app)
         self.jwt_manager = jwt_manager
         app.config.update(JWKS_CACHE_DURATION_SECONDS=int(os.environ.get("JWKS_CACHE_DURATION_SECONDS", 60 * 60)))
-        TactfulJwt.get_jwk.jwks_client = PyJWKClient(app.config.get("JWKS_URL"), cache_jwk_set=True, lifespan=app.config.get("JWKS_CACHE_DURATION_SECONDS"))
+        jwks_manager.init_app(app)
 
     @staticmethod
     def get_jwt_identity() -> JWTPayload:
@@ -46,11 +50,9 @@ class TactfulJwt():
         return wrapper
 
     @staticmethod
-    def get_jwk(kid: str):
+    def get_jwk(kid: str, issuer: str):
         try:
-            signing_key = TactfulJwt.get_jwk.jwks_client.get_signing_key(kid) # type: ignore
-            if signing_key and signing_key.key:
-                return signing_key.key
+            return jwks_manager.get_jwk(kid, issuer)
         except Exception as e:
             current_app.logger.error(f"error getting jwk set {e}")
 
@@ -88,7 +90,7 @@ def get_token_decoding_secret(unverified_headers: Dict, unverified_claims: Dict)
     jwk = None
     secret: Optional[str] = None
     if unverified_headers.get('kid'):
-        jwk = TactfulJwt.get_jwk(unverified_headers['kid'])
+        jwk = TactfulJwt.get_jwk(unverified_headers['kid'], unverified_claims['iss'])
     if jwk:
         current_app.logger.debug(f"returning jwk {jwk}")
         secret = jwk
