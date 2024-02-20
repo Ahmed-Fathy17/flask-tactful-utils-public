@@ -5,7 +5,6 @@ from flask.globals import _cv_app
 from werkzeug.local import LocalProxy
 from celery import Celery
 from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
 from flask_restx import Api
 from flask_migrate import Migrate
 
@@ -15,7 +14,6 @@ __all__ = ["TactfulFlask"]
 from .bus import TactfulBus, TactfulRedisStreamBus
 from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
 from .rest import RestApi
-from .auth.jwt_manager import TactfulJwt
 
 
 class TactfulFlask(Flask):
@@ -34,7 +32,6 @@ class TactfulFlask(Flask):
     bus: TactfulBus
     migrate: Migrate
     api: Api
-    jwt_manager: JWTManager
 
     def configure(self, app_config: Dict, api_title: str, api_name, api_version):
         """Configures TactfulFlask customized version
@@ -66,9 +63,6 @@ class TactfulFlask(Flask):
 
         # initialize bus
         self.bus = TactfulRedisStreamBus.from_app(self)
-
-        # initialize JWT manager
-        self.jwt_manager = TactfulJwt(app=self).jwt_manager
 
         # Initialize monitoring
         monitoring.init_app(self)

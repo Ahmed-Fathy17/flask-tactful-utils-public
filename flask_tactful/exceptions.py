@@ -62,6 +62,11 @@ class UnAuthenticatedException(HTTPException):
     description = "User is not authenticated. - Missing x-api-key header"
 
 
+class InvalidTokenException(HTTPException):
+    code = 401
+    description = "User is not authenticated. - Token invalid"
+
+
 class UnAuthorizedRoleException(HTTPException):
     code = 401
     description = "User is not authorized. - Role is not allowed"

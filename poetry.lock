@@ -913,25 +913,6 @@ aws = ["boto"]
 azure = ["azure-storage-blob"]
 
 [[package]]
-name = "flask-jwt-extended"
-version = "4.6.0"
-description = "Extended JWT integration with Flask"
-optional = false
-python-versions = ">=3.7,<4"
-files = [
-    {file = "Flask-JWT-Extended-4.6.0.tar.gz", hash = "sha256:9215d05a9413d3855764bcd67035e75819d23af2fafb6b55197eb5a3313fdfb2"},
-    {file = "Flask_JWT_Extended-4.6.0-py2.py3-none-any.whl", hash = "sha256:63a28fc9731bcc6c4b8815b6f954b5904caa534fc2ae9b93b1d3ef12930dca95"},
-]
-
-[package.dependencies]
-Flask = ">=2.0,<4.0"
-PyJWT = ">=2.0,<3.0"
-Werkzeug = ">=0.14"
-
-[package.extras]
-asymmetric-crypto = ["cryptography (>=3.3.1)"]
-
-[[package]]
 name = "flask-kafka"
 version = "0.0.3"
 description = "An easy to use kafka consumer that uses the kafka-python library, it runs concurently with your flask server"
@@ -3836,4 +3817,4 @@ resolved_reference = "70d3a54215c02ea28041e9e1d75f16d4edd9765e"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "e697a7ad9834aa3c9802a8678dfd6a16139b8c419ecc87d963a40a1722c176fa"
+content-hash = "7eb31b2dc322e7cac2454d6e6655b437c3e076dd61484663a1f6115ff37dd3be"
