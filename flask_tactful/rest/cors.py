@@ -1,35 +1,28 @@
-from functools import wraps
-from flask import request, current_app
+import os
+from flask import Response, request, current_app, Flask
 
+cors_headers = {
+    'Content-Type': "application/json; charset=UTF-8",
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'PUT,GET,POST,DELETE,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Authorization, X-API-KEY',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': os.environ.get('CORS_PREFLIGHT_MAX_AGE', '86400'),
 
-def get_cors_headers():
-    return {
+    # headers['Accept'] = "application/json, text/javascript, */*; q=0.01"
+    # headers['Accept-Encoding'] = "gzip, deflate, br"
+    # headers['Accept-Language'] = "en-US,en;q=0.9"
+}
 
-        'Content-Type': "application/json; charset=UTF-8",
-        'Access-Control-Allow-Origin': request.environ.get('HTTP_ORIGIN', '*'),
-        'Access-Control-Allow-Methods': 'PUT,GET,POST,DELETE,OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Authorization, X-API-KEY',
-        'Access-Control-Allow-Credentials': 'true'
+def init_app(app: Flask):
+    @app.before_request
+    def allow_options():
+        print("cors_headers", cors_headers)
+        if request.method == "OPTIONS":
+            return Response("OK")
 
-        # headers['Accept'] = "application/json, text/javascript, */*; q=0.01"
-        # headers['Accept-Encoding'] = "gzip, deflate, br"
-        # headers['Accept-Language'] = "en-US,en;q=0.9"
-
-    }
-
-
-def allow_cors(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        headers = {}
+    @app.after_request
+    def handle_cors(response: Response) -> Response:
         if current_app.config.get('ENABLE_CORS'):
-            headers = get_cors_headers()
-
-        response = func(*args, **kwargs)
-        # override the headers with the ones set by the API function
-        # conserve the ones set by the view function
-        if len(response) >= 3:
-            headers.update(response[2])
-        code = response[1] if len(response) > 0 else 200
-        return (response[0], code, headers)
-    return decorated_view
+            response.headers.update(cors_headers)
+        return response

@@ -16,7 +16,6 @@ __all__ = ['default_general_namespace', 'envelop_pagination', 'pagination_model'
            'parser_doc', 'doc',
            'RestApi',
            'profile_access_permission', 'is_authorized', 'get_current_user', 'current_user',
-           'allow_cors'
            ]
 
 from .pagination import default_general_namespace, envelop_pagination, pagination_model, pagination_parser, rule_model
@@ -27,4 +26,3 @@ from .parser_doc import parser_doc
 from . import doc
 from .rest_api import RestApi
 from .jwt_decorators import profile_access_permission, is_authorized, get_current_user, current_user
-from .cors import allow_cors

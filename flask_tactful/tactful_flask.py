@@ -13,7 +13,7 @@ __all__ = ["TactfulFlask"]
 
 from .bus import TactfulBus, TactfulRedisStreamBus
 from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
-from .rest import RestApi
+from .rest import RestApi, cors
 
 
 class TactfulFlask(Flask):
@@ -66,6 +66,9 @@ class TactfulFlask(Flask):
 
         # Initialize monitoring
         monitoring.init_app(self)
+
+        # Initialize CORS
+        cors.init_app(self)
 
         self.cli.add_command(worker_cli)
 

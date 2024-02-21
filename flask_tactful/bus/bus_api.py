@@ -3,7 +3,7 @@ from flask_restx import Namespace, Resource, fields, Api
 from typing import List, Any, Dict
 
 from ..ddd import Event
-from ..rest import class_to_restplus , allow_cors
+from ..rest import class_to_restplus
 
 bus_namespace = Namespace('Events', "Events")
 
@@ -38,26 +38,13 @@ def publish_bus_apis(api: Api, expected_events: Dict[str, str], published_events
 class ExpectedEvents(Resource):
     reply_with: Any = None
     
-    @allow_cors
     def get(self):
-        
         return ExpectedEvents.reply_with, 200
-    
-    @allow_cors
-    @bus_namespace.doc(False)
-    def options(self):
-        return "OK", 200
-    
+
 
 @bus_namespace.route('/published')
 class PublishedEvents(Resource):
     reply_with: Any = None
 
-    @allow_cors
     def get(self):
         return PublishedEvents.reply_with, 200
-    
-    @allow_cors
-    @bus_namespace.doc(False)
-    def options(self):
-        return "OK", 200
