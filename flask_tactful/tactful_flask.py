@@ -1,4 +1,4 @@
-
+import os
 from typing import Dict
 from flask import Flask
 from flask.globals import _cv_app
@@ -45,6 +45,8 @@ class TactfulFlask(Flask):
         Returns:
             _type_: _description_
         """
+        # Properly set TESTING Variable
+        self.config['TESTING'] = os.environ.get('TESTING', 'false').lower() == 'true'
         # Updates the Flask application configuration
         self.config.update(app_config)
 
