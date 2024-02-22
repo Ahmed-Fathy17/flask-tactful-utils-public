@@ -63,16 +63,16 @@ def is_authorized(func):
 
 
 def authorize(resource: str, kwargs: Dict) -> bool:
-    if current_app.config.get("TESTING", False):
-        current_app.logger.info(f"BYPASSING AUTH/AUTHZ - allowing {resource} and {kwargs}")
-        return True
-
     authorized = resource_permission(resource, kwargs)
     g._jwt_current_user = decode_token()
     return authorized
 
 
 def resource_permission(resource: str, kwargs: Dict) -> bool:
+    if current_app.config.get("TESTING", False):
+        current_app.logger.info(f"BYPASSING AUTH/AUTHZ - allowing {resource} and {kwargs}")
+        return True
+
     token = str(request.headers.get(current_app.config['JWT_HEADER_NAME']))
     body = {
         "input": {
