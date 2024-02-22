@@ -1,14 +1,19 @@
-
-from typing import Any, Dict, Iterable, List, Optional
 import json
 import socket
 import logging
+# Flask
 from flask import Flask
+# Redis
 from redis import Redis
 from redis.exceptions import RedisError
-
+# Bugsnag
+import bugsnag
+from bugsnag.handlers import BugsnagHandler
+from bugsnag.flask import handle_exceptions
+# Custom
 from ..ddd import Event
 from .bus import TactfulBus
+from typing import Any, Dict, Iterable, List, Optional
 
 
 class TactfulRedisStreamBus(TactfulBus):
@@ -36,6 +41,8 @@ class TactfulRedisStreamBus(TactfulBus):
 
     consumer_name: str
     """ name of the server, to use as the consumer name """
+
+    bugsnag_handler: BugsnagHandler
 
     @classmethod
     def from_app(cls, app: Flask, **kw):
@@ -71,12 +78,25 @@ class TactfulRedisStreamBus(TactfulBus):
     def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", max_stream_len:int = 10*1000*1000, approximate_trimming: bool = True, logger: Optional[logging.Logger] = None, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
+
         self.group_name = group_name
         self.consumer_name = consumer_name
         self.approximate_trimming = approximate_trimming
         self.max_stream_len = max_stream_len
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
+        ############################
+        # configure bugsnag
+        bugsnag.configure(api_key='90380d666a503032a46dc022dce6db0d')
+        if not self.logger:
+            # Use the Flask default logger
+            handle_exceptions(app)
+        if self.logger:
+            # Use the provided logger
+            handler = BugsnagHandler()
+            handler.setLevel(logging.ERROR) # send only ERROR-level logs and above
+            self.logger.addHandler(handler)
+            self.logger.addFilter(handler.leave_breadcrumbs) # leave short log statements as breadcrumbs
 
     def _prepare_streams(self):
         """initialized the streams and consumer groups for reading
