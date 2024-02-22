@@ -2,9 +2,8 @@ import os
 from flask import Response, request, current_app, Flask
 
 cors_headers = {
-    'Content-Type': "application/json; charset=UTF-8",
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'PUT,GET,POST,DELETE,OPTIONS',
+    'Access-Control-Allow-Methods': 'PUT,PATCH,GET,POST,DELETE,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Authorization, X-API-KEY',
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Max-Age': os.environ.get('CORS_PREFLIGHT_MAX_AGE', '86400'),
@@ -17,7 +16,6 @@ cors_headers = {
 def init_app(app: Flask):
     @app.before_request
     def allow_options():
-        print("cors_headers", cors_headers)
         if request.method == "OPTIONS":
             return Response("OK")
 
