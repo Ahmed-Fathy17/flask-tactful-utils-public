@@ -21,11 +21,13 @@ def decode_token():
     return jwt.decode(parts[1], options={"verify_signature": False})
 
 
-current_user = LocalProxy(lambda: get_current_user())
+def get_current_user() -> dict:
+    decoded_jwt = g.get('_jwt_current_user', None)
+    if decoded_jwt is None:
+        raise RuntimeError("You must call `@profile_access_permission` or `@is_authorized` before accessing current user")
+    return decoded_jwt
 
-
-def get_current_user():
-    return g.get('_jwt_current_user', None)
+current_user: dict = LocalProxy(get_current_user) # type: ignore
 
 
 def profile_access_permission(func):
