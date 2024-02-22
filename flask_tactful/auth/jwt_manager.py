@@ -6,6 +6,7 @@ from flask_jwt_extended import JWTManager, jwt_required, current_user
 
 from .jwks_manager import JwksManager
 from .jwt_payload import JWTPayload
+from .jwt_utils import get_jwt_identity
 from functools import wraps
 
 jwt_manager = JWTManager()
@@ -37,9 +38,7 @@ class TactfulJwt():
 
     @staticmethod
     def get_jwt_identity() -> JWTPayload:
-        jwt_user = get_current_user()
-        payload = JWTPayload(id=jwt_user.get("id"), sub=jwt_user.get("sub"), email=jwt_user.get("email"), role=jwt_user.get("role"), aud=jwt_user.get("aud"))
-        return payload
+        return get_jwt_identity()
 
     @staticmethod
     def jwt_required(func):

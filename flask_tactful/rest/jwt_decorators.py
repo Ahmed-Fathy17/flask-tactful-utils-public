@@ -1,33 +1,9 @@
 from typing import Dict
-import jwt
 import requests
 from functools import wraps
 from flask import request, current_app, g
-from werkzeug.local import LocalProxy
-
-from ..exceptions import InvalidTokenException, UnAuthenticatedException, UnAuthorizedRoleException
-
-def decode_token():
-    header_name = current_app.config['JWT_HEADER_NAME']
-
-    auth_header = request.headers.get(header_name, "").strip().strip(",")
-    if not auth_header:
-        raise UnAuthenticatedException()
-
-    parts = auth_header.split()
-    if len(parts) != 2:
-        raise InvalidTokenException()
-
-    return jwt.decode(parts[1], options={"verify_signature": False})
-
-
-def get_current_user() -> dict:
-    decoded_jwt = g.get('_jwt_current_user', None)
-    if decoded_jwt is None:
-        raise RuntimeError("You must call `@profile_access_permission` or `@is_authorized` before accessing current user")
-    return decoded_jwt
-
-current_user: dict = LocalProxy(get_current_user) # type: ignore
+from ..auth.jwt_utils import decode_token
+from ..exceptions import InvalidTokenException, UnAuthorizedRoleException
 
 
 def profile_access_permission(func):
