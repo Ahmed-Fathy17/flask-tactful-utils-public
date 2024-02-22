@@ -85,12 +85,14 @@ class TactfulRedisStreamBus(TactfulBus):
         self.max_stream_len = max_stream_len
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
+        ############################
         # configure bugsnag
         bugsnag.configure(api_key='90380d666a503032a46dc022dce6db0d')
         if not self.logger:
-            # Use the Flask logger
+            # Use the Flask default logger
             handle_exceptions(app)
         if self.logger:
+            # Use the provided logger
             handler = BugsnagHandler()
             handler.setLevel(logging.ERROR) # send only ERROR-level logs and above
             self.logger.addHandler(handler)
