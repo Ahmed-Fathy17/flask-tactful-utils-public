@@ -1,5 +1,6 @@
 import jwt
 from flask import request, current_app, g
+from jwt import InvalidTokenError
 from werkzeug.local import LocalProxy
 from .jwt_payload import JWTPayload
 from ..exceptions import InvalidTokenException, UnAuthenticatedException
@@ -16,7 +17,11 @@ def decode_token():
     if len(parts) != 2:
         raise InvalidTokenException()
 
-    return jwt.decode(parts[1], options={"verify_signature": False})
+    try:
+        return jwt.decode(parts[1], options={"verify_signature": False})
+    except InvalidTokenError as e:
+        raise InvalidTokenException(str(e)) from e
+
 
 
 def get_current_user() -> dict:

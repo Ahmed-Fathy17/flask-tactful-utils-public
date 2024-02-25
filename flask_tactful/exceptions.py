@@ -3,6 +3,7 @@ each exception contains an HTTP Status code and error message
 
 The exceptions are handled by Flask and are returned to the user with the status code
 """
+from http import HTTPStatus
 
 from werkzeug.exceptions import HTTPException
 
@@ -63,7 +64,7 @@ class UnAuthenticatedException(HTTPException):
 
 
 class InvalidTokenException(HTTPException):
-    code = 401
+    code = HTTPStatus.UNPROCESSABLE_ENTITY  # 422
     description = "User is not authenticated. - Token invalid"
 
 
