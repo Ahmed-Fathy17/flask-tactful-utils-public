@@ -12,7 +12,7 @@ from . import database
 __all__ = ["TactfulFlask"]
 
 from .bus import TactfulBus, TactfulRedisStreamBus
-from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
+from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring, prometheus
 from .rest import RestApi, cors
 
 
@@ -68,6 +68,7 @@ class TactfulFlask(Flask):
 
         # Initialize monitoring
         monitoring.init_app(self)
+        prometheus.init_metrics(self, self.api)
 
         # Initialize CORS
         cors.init_app(self)
