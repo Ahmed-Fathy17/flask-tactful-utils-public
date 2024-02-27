@@ -22,10 +22,9 @@ def profile_access_permission(func):
             current_app.logger.error(f"requested profile:{profile} but user has user_profile_id:{user_profile_id}")
             raise UnAuthorizedRoleException("Different profile associated with authentication token")
 
-        if profile is None:
-            raise UnAuthorizedRoleException(description="profile_id is None")
-
         if authorize(decorated_view.__qualname__.lower(), kwargs):
+            if kwargs.get('profile') is None:
+                raise UnAuthorizedRoleException(description="profile_id is None")
             return func(*args, **kwargs)
 
     return decorated_view
@@ -58,7 +57,8 @@ def resource_permission(resource: str, kwargs: Dict) -> bool:
             "token": token.split()[-1],
             "query_params": {resource: request.args.to_dict()},
             "path_params": {resource: kwargs},
-            "body_params": {resource: request.get_json(silent=True)}
+            "body_params": {resource: request.get_json(silent=True)},
+            "headers": {'profile': request.headers.get('profile')},
         }
     }
 
@@ -69,6 +69,8 @@ def resource_permission(resource: str, kwargs: Dict) -> bool:
     auth_result = res.json().get("result").get(resource)
     if auth_result:
         if auth_result.get("allow"):
+            if auth_result.get('profile_id'):
+                kwargs['profile'] = kwargs.get('profile', auth_result['profile_id'])
             return True
         raise UnAuthorizedRoleException(description=auth_result.get('explain'))
     raise UnAuthorizedRoleException()
