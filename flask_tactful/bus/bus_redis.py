@@ -152,16 +152,17 @@ class TactfulRedisStreamBus(TactfulBus):
 
     def _start_reading(self):
         super()._start_reading()
-        self._prepare_streams()
-        if not self.get_topics():
-            self.logger.warn("no streams to read from, bus is not functional")
-        else: 
+        if self.get_topics():
+            self._prepare_streams()
             while (True):
                 events = self.read(count=1)
                 for event in events:
                     self._run_handlers(event)
 
                 self._stop_if_interrupted()
+        else: 
+            self.logger.warn("Redis: No topics to read from, exiting")
+            return 1
 
     def shutdown(self, signal: int, frame: Any):
         self.redis.close()

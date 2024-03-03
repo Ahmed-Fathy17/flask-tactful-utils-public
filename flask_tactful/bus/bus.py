@@ -195,10 +195,14 @@ class TactfulBus(abc.ABC):
         """ Start consuming messages from the bus, this will open consumers on the specificed topics
             Must be called after the application is completed initialization, and the on() even listeners are registered.
         """
-        # run the consumer application
-        self.logger.info("Consuming Kafka events...")
-        t = threading.Thread(target=self._start_reading)
-        t.start()
+        if self.get_topics():
+            # Read messages from the bus only if there are topics to read from
+            self.logger.info("Consuming Bus events...")
+            t = threading.Thread(target=self._start_reading)
+            t.start()
+        else:
+            self.logger.warn("No topics to read from, exiting")
+            return 1
 
 
     @classmethod
