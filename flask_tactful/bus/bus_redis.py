@@ -1,6 +1,7 @@
 import json
 import socket
 import logging
+import time
 # Flask
 from flask import Flask
 # Redis
@@ -71,18 +72,18 @@ class TactfulRedisStreamBus(TactfulBus):
             prefix=app.config.get("STAGE", "local:"),
             logger=app.logger,
             max_stream_len=app.config.get("REDIS_MAX_STREAM_LEN", 10*1000*1000),
+            busReconnectionTimeout=app.config.get("REDIS_RECONNECTION_TIMEOUT", 120),
             approximate_trimming=app.config.get("REDIS_APPROXIMATE_TRIMMING", True), # it leads to better performance
             **kw
         )
 
-    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", max_stream_len:int = 10*1000*1000, approximate_trimming: bool = True, logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", max_stream_len:int = 10*1000*1000, busReconnectionTimeout= 120, approximate_trimming: bool = True, logger: Optional[logging.Logger] = None, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
-        self.redis = Redis.from_url(url=bus_url, decode_responses=True)
-
         self.group_name = group_name
         self.consumer_name = consumer_name
         self.approximate_trimming = approximate_trimming
         self.max_stream_len = max_stream_len
+        self.busReconnectionTimeout = busReconnectionTimeout
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
         ############################
@@ -97,6 +98,20 @@ class TactfulRedisStreamBus(TactfulBus):
             handler.setLevel(logging.ERROR) # send only ERROR-level logs and above
             self.logger.addHandler(handler)
             self.logger.addFilter(handler.leave_breadcrumbs) # leave short log statements as breadcrumbs
+        connected = False
+        while not connected:
+            try:
+                self.redis = Redis.from_url(url=bus_url, decode_responses=True)
+                connected = True
+            except Exception as e:
+                errorMessage = f"Connection error: {e}. Retrying in {self.busReconnectionTimeout} seconds..."
+                if logger:
+                    logger.error(errorMessage)
+                else:
+                    print(errorMessage)
+                time.sleep(self.busReconnectionTimeout)
+            
+
 
     def _prepare_streams(self):
         """initialized the streams and consumer groups for reading

@@ -17,6 +17,26 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 --- 
 
+## [4.3.1] - 2024-03-21
+
+### Added
+
+- The bus can handle connection errors and will try to reconnect to the Redis server. Use `busReconnectionTimeout` to set the time in seconds to wait before trying to reconnect to the Redis server. The default value is 2 minutes.
+
+Example:
+```python
+bus = TactfulRedisStreamBus(
+        app=Flask(__name__),
+        bus_url=TEST_REDIS_DB,
+        group_name="tests",
+        consumer_name="client1",
+        max_stream_len=2,
+        busReconnectionTimeout=120, # 2 minutes
+        approximate_trimming=False # To get exact length trimming. Check: https://stackoverflow.com/a/67526831/14043328
+    )
+```
+
+
 ## [3.2.0] - 2024-02-07
    
 ### Added
