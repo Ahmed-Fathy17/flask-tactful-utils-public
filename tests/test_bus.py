@@ -23,6 +23,7 @@ def bus_client(reset_bus):
         group_name="tests",
         consumer_name="client1",
         max_stream_len=2,
+        busReconnectionTimeout=120,
         approximate_trimming=False # To get exact length trimming. Check: https://stackoverflow.com/a/67526831/14043328
     )
     return client1
