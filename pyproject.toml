@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flask-tactful"
-version = "2.1.6"
+version = "2.1.7"
 description = "Flask Utilities used by Tactful AI services"
 authors = ["Tactful AI <dev@tactful.ai>"]
 
@@ -33,6 +33,9 @@ packaging= "^20.9"
 prompt-toolkit= "3.0.28"
 #cryptography = "^37.0.4"
 cryptography = "^42.0.2"
+python-keycloak = "^3.9.0"
+pyjwt = "^2.8.0"
+prometheus-flask-exporter = "^0.23.0"
 sphinx-rtd-theme = "^1.0.0"
 
 
