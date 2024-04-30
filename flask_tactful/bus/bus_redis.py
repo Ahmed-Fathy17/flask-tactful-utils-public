@@ -1,15 +1,20 @@
-
-from typing import Any, Dict, Iterable, List, Optional
 import json
 import socket
 import logging
-from pydantic import parse_obj_as
+import time
+# Flask
 from flask import Flask
+# Redis
 from redis import Redis
 from redis.exceptions import RedisError
-
+# Bugsnag
+import bugsnag
+from bugsnag.handlers import BugsnagHandler
+from bugsnag.flask import handle_exceptions
+# Custom
 from ..ddd import Event
 from .bus import TactfulBus
+from typing import Any, Dict, Iterable, List, Optional
 
 
 class TactfulRedisStreamBus(TactfulBus):
@@ -38,6 +43,8 @@ class TactfulRedisStreamBus(TactfulBus):
     consumer_name: str
     """ name of the server, to use as the consumer name """
 
+    bugsnag_handler: BugsnagHandler
+
     @classmethod
     def from_app(cls, app: Flask, **kw):
         app.after_request
@@ -64,16 +71,47 @@ class TactfulRedisStreamBus(TactfulBus):
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
             prefix=app.config.get("STAGE", "local:"),
             logger=app.logger,
+            max_stream_len=app.config.get("REDIS_MAX_STREAM_LEN", 10*1000*1000),
+            busReconnectionTimeout=app.config.get("REDIS_RECONNECTION_TIMEOUT", 120),
+            approximate_trimming=app.config.get("REDIS_APPROXIMATE_TRIMMING", True), # it leads to better performance
             **kw
         )
 
-    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", max_stream_len:int = 10*1000*1000, busReconnectionTimeout= 120, approximate_trimming: bool = True, logger: Optional[logging.Logger] = None, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
-        self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
+        self.approximate_trimming = approximate_trimming
+        self.max_stream_len = max_stream_len
+        self.busReconnectionTimeout = busReconnectionTimeout
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
+        ############################
+        # configure bugsnag
+        bugsnag.configure(api_key='90380d666a503032a46dc022dce6db0d')
+        if not self.logger:
+            # Use the Flask default logger
+            handle_exceptions(app)
+        if self.logger:
+            # Use the provided logger
+            handler = BugsnagHandler()
+            handler.setLevel(logging.ERROR) # send only ERROR-level logs and above
+            self.logger.addHandler(handler)
+            self.logger.addFilter(handler.leave_breadcrumbs) # leave short log statements as breadcrumbs
+        connected = False
+        while not connected:
+            try:
+                self.redis = Redis.from_url(url=bus_url, decode_responses=True)
+                connected = True
+            except Exception as e:
+                errorMessage = f"Connection error: {e}. Retrying in {self.busReconnectionTimeout} seconds..."
+                if logger:
+                    logger.error(errorMessage)
+                else:
+                    print(errorMessage)
+                time.sleep(self.busReconnectionTimeout)
+            
+
 
     def _prepare_streams(self):
         """initialized the streams and consumer groups for reading
@@ -107,7 +145,7 @@ class TactfulRedisStreamBus(TactfulBus):
         Returns:
             List[Event]: _description_
         """
-        streams = self.get_topics()
+        streams = self.get_topics()           
         events: List[Event] = []
         self.logger.debug(f"blocking on streams {streams}")
         streams_results = self.redis.xreadgroup(groupname=self.group_name, consumername=self.consumer_name, streams={s: '>' for s in streams}, count=count, block=50000)
@@ -123,32 +161,37 @@ class TactfulRedisStreamBus(TactfulBus):
         # convert json into a dict
         msg_dict = json.loads(msg["message"])
         # convert dict into an event
-        event = Event.parse_obj(msg_dict)
+        event = Event.model_validate(msg_dict)
         event.msg_id = msg_id
         return event
 
     def _start_reading(self):
         super()._start_reading()
-        self._prepare_streams()
-        while (True):
-            events = self.read(count=1)
-            for event in events:
-                self._run_handlers(event)
+        if self.get_topics():
+            self._prepare_streams()
+            while (True):
+                events = self.read(count=1)
+                for event in events:
+                    self._run_handlers(event)
 
-            self._stop_if_interrupted()
+                self._stop_if_interrupted()
+        else: 
+            self.logger.warn("Redis: No topics to read from, exiting")
+            return 1
 
     def shutdown(self, signal: int, frame: Any):
         self.redis.close()
 
-    def send(self, topic: str, raw_msg: Dict, **send_opts) -> str:
-        return self.redis.xadd(name=topic, fields=raw_msg, **send_opts)
+    def send(self, topic: str, max_stream_len: int, raw_msg: Dict, **send_opts) -> str:
+        return self.redis.xadd(name=topic, fields=raw_msg, maxlen=max_stream_len, approximate=self.approximate_trimming, **send_opts)
 
     def publish(self, event: Event, **send_opts) -> str:
         # convert the event into a dict
-        event_dict = event.dict()
+        event_dict = event.model_dump()
         # convert the dict into a json
         event_json = json.dumps(event_dict)
-        msg_id = self.send(topic=event.topic, raw_msg={"message": event_json}, **send_opts)
+        max_stream_len = event.max_stream_len if event.max_stream_len != 0 else self.max_stream_len # accept self.max_stream_len if event.max_stream_len is None
+        msg_id = self.send(topic=event.topic, max_stream_len=max_stream_len, raw_msg={"message": event_json}, **send_opts)
         event.msg_id = msg_id
         return msg_id
 

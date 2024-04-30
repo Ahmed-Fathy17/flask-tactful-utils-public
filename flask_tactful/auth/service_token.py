@@ -1,12 +1,16 @@
 from datetime import datetime
 import requests
-from . import OauthCreds,ServiceAccessToken
+from .jwt_payload import OauthCreds,ServiceAccessToken
+from .sso_utils import sso_utils
 import math
 
 class ServiceToken:
-  def __init__(self,oauth_creds):
-    self.oauth_creds = OauthCreds(client_id=oauth_creds.get('client_id'),
-                        client_secret=oauth_creds.get('client_secret'),token_endpoint=oauth_creds.get('token_endpoint'))
+  def __init__(self,oauth_creds: dict):
+    self.oauth_creds = OauthCreds(
+      client_id=oauth_creds.get('client_id'),
+      client_secret=sso_utils.get_client_secret(oauth_creds.get('client_id')),
+      token_endpoint=oauth_creds.get('token_endpoint')
+    )
     self._token = ServiceAccessToken("",0)
 
   def get_token(self):

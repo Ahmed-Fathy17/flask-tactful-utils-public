@@ -1,11 +1,17 @@
+import os
 from typing import Dict, Optional
 from jwt import PyJWKClient
 from flask import current_app, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, current_user
+
+from .jwks_manager import JwksManager
 from .jwt_payload import JWTPayload
+from .jwt_utils import get_jwt_identity
 from functools import wraps
 
 jwt_manager = JWTManager()
+jwks_manager = JwksManager()
+
 
 def get_current_user():
     if current_user and isinstance(current_user.get('sub'), str):
@@ -27,12 +33,12 @@ class TactfulJwt():
     def __init__(self, app):
         jwt_manager.init_app(app)
         self.jwt_manager = jwt_manager
+        app.config.update(JWKS_CACHE_DURATION_SECONDS=int(os.environ.get("JWKS_CACHE_DURATION_SECONDS", 60 * 60)))
+        jwks_manager.init_app(app)
 
     @staticmethod
     def get_jwt_identity() -> JWTPayload:
-        jwt_user = get_current_user()
-        payload = JWTPayload(id=jwt_user.get("id"), sub=jwt_user.get("sub"), email=jwt_user.get("email"), role=jwt_user.get("role"), aud=jwt_user.get("aud"))
-        return payload
+        return get_jwt_identity()
 
     @staticmethod
     def jwt_required(func):
@@ -43,13 +49,9 @@ class TactfulJwt():
         return wrapper
 
     @staticmethod
-    def get_jwk(kid: str):
+    def get_jwk(kid: str, issuer: str):
         try:
-            jwks_url = current_app.config.get("JWKS_URL")
-            jwks_client = PyJWKClient(jwks_url)
-            signing_key = jwks_client.get_signing_key(kid)
-            if signing_key and signing_key.key:
-                return signing_key.key
+            return jwks_manager.get_jwk(kid, issuer)
         except Exception as e:
             current_app.logger.error(f"error getting jwk set {e}")
 
@@ -87,7 +89,7 @@ def get_token_decoding_secret(unverified_headers: Dict, unverified_claims: Dict)
     jwk = None
     secret: Optional[str] = None
     if unverified_headers.get('kid'):
-        jwk = TactfulJwt.get_jwk(unverified_headers['kid'])
+        jwk = TactfulJwt.get_jwk(unverified_headers['kid'], unverified_claims['iss'])
     if jwk:
         current_app.logger.debug(f"returning jwk {jwk}")
         secret = jwk

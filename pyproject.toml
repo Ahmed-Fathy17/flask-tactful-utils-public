@@ -12,7 +12,6 @@ alembic = "^1.8.0" # Check
 Flask-Admin = "^1.6.0"
 bugsnag = "^4.2.1"
 SQLAlchemy = "^1.4.39"
-Flask-JWT-Extended = "^4.4.2"
 flask-swagger-ui = "^4.11.1"
 Flask-SQLAlchemy = "^3.0.5"
 Flask-Migrate = "^3.1.0"
@@ -25,7 +24,8 @@ celery = "5.2.2"
 kombu = "5.2.2"
 
 python-simplexml = "^0.1.5"
-pydantic = "^1.9.1"
+pydantic = {extras = ["dotenv"], version = "^2.6.0"}
+pydantic-settings = "^2.2.1"
 redis = "^4.5.1"
 #Sphinx = "^6.1.3"  # Check 
 sphinx = "^4.3.0" 
@@ -39,7 +39,7 @@ sphinx-rtd-theme = "^1.0.0"
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
 notebook = "^6.5.2"
-mypy = "^0.961"
+mypy = "^1.8.0"
 pylint = "^2.14.4"
 poethepoet = "^0.15.0"
 pytest = "^7.1.2"
@@ -81,3 +81,28 @@ ignore = "E501,W6,E11"
 in-place = true
 recursive = true
 aggressive = false
+
+
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
+ignore_missing_imports= true
+strict_optional = false
+non_interactive = true
+install_types = true
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+# check_untyped_defs = true
+no_implicit_reexport = true
+disable_error_code = [ "type-arg" ]
+
+# for strict mypy: (this is the tricky one :-))
+# disallow_untyped_defs = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true

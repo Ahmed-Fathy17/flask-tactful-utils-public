@@ -11,6 +11,64 @@ Installation
 2. Install poetry `pip install poetry` or using these setps https://python-poetry.org/docs/#installation
 3. Install dependencies `poetry install`
 
+Upgrade to Python 3.11
+=====================
+- **Update Python Version**
+    1. Open **`pyproject.toml`** file.
+    2. Locate the **`[tool.poetry.dependencies]`** section.
+    3. Update the **`python`** version to **`"~3.11"`**.
+        
+.. code-block:: toml
+        [tool.poetry.dependencies]
+        python = "~3.11"
+        
+        
+    4. Save the changes.
+- **Install Python 3.11 Ubuntu/Debian**
+    
+.. code-block:: bash
+    sudo apt-get update
+    sudo apt-get install python3.11
+    sudo apt-get install python3.11-distutils
+    sudo apt install python3.10-venv
+    
+    
+- **Update Poetry Environment**
+    Run the following commands to update the Python version used by Poetry and recreate the virtual environment.
+        
+.. code-block:: bash
+        pyenv install 3.11
+        pyenv update
+        
+        poetry env use 3.11
+        [OR]
+        poetry env use /usr/bin/python3.11
+
+        poetry run pip install --upgrade pip setuptools
+        
+        poetry run poe login
+        
+        
+- **Update Dependencies (Optional)**
+    If there are newer versions of your dependencies that are compatible with Python 3.11, you may consider updating them. 
+    
+.. code-block:: bash
+
+    poetry update
+
+- **Install Dependencies**
+.. code-block:: bash
+
+    poetry install
+    
+- **Verify the Python Version**        
+.. code-block:: bash
+
+    poetry run python --version
+        
+
+This should display Python 3.11.x.
+
 Developer Guide
 ===============
 

@@ -1,15 +1,14 @@
-from typing import Any
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel
 
 
-class Event(BaseModel, extra=Extra.allow):
+class Event(BaseModel, extra='allow'):
     """ Event to be sent on the bus, represents an event happening in one microservice,
     other microservices can recieve this event by listening to the topic named after the sender service
     events are usually profile/tenant based (must contain a profile ID)
     """
 
     """ version identifier, if the schema changes, please increment """
-    version: int = 1
+    version: int = 2
 
     """ Bus topic, or the queue name in the busses that don't support topics (e.g. tactful.billing) """
     topic: str
@@ -22,3 +21,6 @@ class Event(BaseModel, extra=Extra.allow):
 
     """ profile ID (tenant id) for the workspace that generated the event """
     profile_id: int
+
+    """max length of the stream, if the number of entries exceeds this, the oldest entries will be trimmed"""
+    max_stream_len: int = 0

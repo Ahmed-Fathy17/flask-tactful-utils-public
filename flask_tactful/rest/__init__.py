@@ -15,8 +15,7 @@ __all__ = ['default_general_namespace', 'envelop_pagination', 'pagination_model'
            'class_to_restplus', 'model_to_restplus', 'class_to_parser',
            'parser_doc', 'doc',
            'RestApi',
-           'profile_access_permission', 'require_admin', 'is_authorized',
-           'allow_cors'
+           'profile_access_permission', 'is_authorized',
            ]
 
 from .pagination import default_general_namespace, envelop_pagination, pagination_model, pagination_parser, rule_model
@@ -26,5 +25,4 @@ from .rest_model import class_to_restplus, model_to_restplus, class_to_parser
 from .parser_doc import parser_doc
 from . import doc
 from .rest_api import RestApi
-from .jwt_decorators import profile_access_permission, require_admin, is_authorized
-from .cors import allow_cors
+from .jwt_decorators import profile_access_permission, is_authorized
