@@ -39,11 +39,10 @@ bus = TactfulRedisStreamBus(
   
 # Create your event 
 event = Event(
-  version= 2
+  version= 1
   topic= "tactful.svc", 
   event= "TestEvent", 
   msg_id= '1234567890',
-  max_stream_len= 100, # means the stream will only keep the last 100 messages
   profile_id= 1
   )
 

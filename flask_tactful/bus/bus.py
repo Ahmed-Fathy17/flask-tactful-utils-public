@@ -5,10 +5,8 @@ import signal
 from flask import Flask
 from typing import Any, Dict, Callable, Optional, List
 import abc
-from flask_restx import Api
 
 from ..ddd import Event
-from .bus_api import publish_bus_apis
 
 TactfulBusTopicHandler = Optional[Callable[[Event], None]]
 TactfulBusEventHandler = Callable[[Event], None]
@@ -31,11 +29,7 @@ class TactfulBus(abc.ABC):
 
     """ List of callback handler function for each event, use add_event_handler() or on(), dont use directly"""
     event_handlers: Dict[str, List[TactfulBusEventHandler]]
-
-    """ List of events that the application will publish, this will be used to document the bus topics and the events that are published on them"""
-    published_events: List[Event] = []
-
-    """ Event to be set when the application is interrupted, use it to stop the consumer """
+    
     interrupt_event: threading.Event
     logger: logging.Logger
 
@@ -76,7 +70,7 @@ class TactfulBus(abc.ABC):
     
 
     @abc.abstractmethod
-    def send(self, topic: str, max_stream_len: int, raw_msg: Dict, **send_opts) -> str:
+    def send(self, topic: str, raw_msg: Dict, **send_opts) -> str:
         """**Low-level** sends a message to the bus topic specified
         the message is specified as native dict object,
 
@@ -195,42 +189,7 @@ class TactfulBus(abc.ABC):
         """ Start consuming messages from the bus, this will open consumers on the specificed topics
             Must be called after the application is completed initialization, and the on() even listeners are registered.
         """
-        if self.get_topics():
-            # Read messages from the bus only if there are topics to read from
-            self.logger.info("Consuming Bus events...")
-            t = threading.Thread(target=self._start_reading)
-            t.start()
-        else:
-            self.logger.warn("No topics to read from, exiting")
-            return 1
-
-
-    @classmethod
-    def published(cls):
-        """ decorator to listen to a specific event on a topic, function must accept a paremeter of type Event
-
-        Args:
-            topic (str): name of the topic, usually prefixed by the system and the environment name (e.g. tactful:qa:billing)
-            event (str): name of the event, case-insensitive (e.g. InvoiceCreated)
-        """
-        def decorator(ev: Event):
-            cls.register_published_events([ev])
-            return ev
-        return decorator
-
-    @classmethod
-    def register_published_events(cls, events: List[Event]):
-        """ list of events that the application will publish, this will be used to document the bus topics and the events that are published on them
-        you can call this function multiple times 
-
-        Args:
-            events (List[Event]): Events schema to be published by the application
-        """
-        cls.published_events.extend(events)
-
-
-    def publish_apis(self, api: Api):
-
-        expected_events = {  kv[1]: kv[0] for kv in [ ev.split("+") for ev in list(self.event_handlers.keys())]}
-        published_events = TactfulBus.published_events
-        publish_bus_apis(api, expected_events, published_events)
+        # run the consumer application
+        self.logger.info("Consuming Kafka events...")
+        t = threading.Thread(target=self._start_reading)
+        t.start()

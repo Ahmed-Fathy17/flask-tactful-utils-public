@@ -15,7 +15,7 @@ authorizations = {
 }
 
 
-def RestApi(app: Flask, title: str, api_name: str, api_version: str) -> Api:
+def RestApi(app: Flask, title: str, api_name: str, api_version) -> Api:
     """Creates a Flask Restful API with Swagger UI documentation.
 
     Args:
@@ -51,17 +51,6 @@ def RestApi(app: Flask, title: str, api_name: str, api_version: str) -> Api:
             app_name=title, layout='BaseLayout',
             defaultModelsExpandDepth=1,
             docExpansion='none',
-            queryConfigEnabled=False,
-            displayOperationId=True,
-            persistAuthorization=True,
-        ),
-        oauth_config=dict(  # OAuth config. See https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/oauth2.md.
-            clientId="connectme",
-            # clientSecret="NEVER FILL THIS or it will be exposed in the browser",
-            realm="your-realms",
-            appName="swagger",
-            scopeSeparator=" ",
-            additionalQueryStringParams={'profile': "0"}
         ),
         api_url=swagger_url,
         blueprint_name="swagger_ui" + api_name
@@ -92,7 +81,6 @@ def RestApi(app: Flask, title: str, api_name: str, api_version: str) -> Api:
     def show_api_docs():
         """Redirects to the homepage in our case it is the orders page."""
         return render_template_string(template, swagger_url=swagger_url)
-    
     @app.route(api_prefix)
     def docs():
         return redirect(docs_url)

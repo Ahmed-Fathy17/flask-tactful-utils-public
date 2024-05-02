@@ -1,10 +1,11 @@
-import os
+
 from typing import Dict
 from flask import Flask
 from flask.globals import _cv_app
 from werkzeug.local import LocalProxy
 from celery import Celery
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 from flask_restx import Api
 from flask_migrate import Migrate
 
@@ -12,8 +13,9 @@ from . import database
 __all__ = ["TactfulFlask"]
 
 from .bus import TactfulBus, TactfulRedisStreamBus
-from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring, prometheus
-from .rest import RestApi, cors
+from .middlewares import worker, ReverseProxied, AuthMiddleware, monitoring
+from .rest import RestApi
+from .auth.jwt_manager import TactfulJwt
 
 
 class TactfulFlask(Flask):
@@ -32,6 +34,7 @@ class TactfulFlask(Flask):
     bus: TactfulBus
     migrate: Migrate
     api: Api
+    jwt_manager: JWTManager
 
     def configure(self, app_config: Dict, api_title: str, api_name, api_version):
         """Configures TactfulFlask customized version
@@ -45,8 +48,6 @@ class TactfulFlask(Flask):
         Returns:
             _type_: _description_
         """
-        # Properly set TESTING Variable
-        self.config['TESTING'] = os.environ.get('TESTING', 'false').lower() == 'true'
         # Updates the Flask application configuration
         self.config.update(app_config)
 
@@ -66,12 +67,11 @@ class TactfulFlask(Flask):
         # initialize bus
         self.bus = TactfulRedisStreamBus.from_app(self)
 
+        # initialize JWT manager
+        self.jwt_manager = TactfulJwt(app=self).jwt_manager
+
         # Initialize monitoring
         monitoring.init_app(self)
-        prometheus.init_metrics(self, self.api)
-
-        # Initialize CORS
-        cors.init_app(self)
 
         self.cli.add_command(worker_cli)
 

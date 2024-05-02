@@ -21,10 +21,7 @@ def bus_client(reset_bus):
         app=Flask(__name__),
         bus_url=TEST_REDIS_DB,
         group_name="tests",
-        consumer_name="client1",
-        max_stream_len=2,
-        busReconnectionTimeout=120,
-        approximate_trimming=False # To get exact length trimming. Check: https://stackoverflow.com/a/67526831/14043328
+        consumer_name="client1"
     )
     return client1
 
@@ -58,6 +55,7 @@ def test_flask_initilaization():
     assert bus
     assert bus.consumer_name == socket.gethostname()
 
+
 def test_redis_client(bus_client: TactfulRedisStreamBus):
     bus_client.add_event_handler("billing", "CreditCardExpired", None)
     bus_client._prepare_streams()
@@ -66,6 +64,7 @@ def test_redis_client(bus_client: TactfulRedisStreamBus):
     event_in = bus_client.read()[0]
 
     assert event_in == event_out
+
 
 def test_redis_group_loadbalancing(bus_same_group_clients: Tuple[TactfulRedisStreamBus, ...]):
     (sender, client1, client2, client3) = bus_same_group_clients
@@ -98,6 +97,7 @@ def test_redis_group_loadbalancing(bus_same_group_clients: Tuple[TactfulRedisStr
     assert events_in1 != events_in2
     assert events_in2 != events_in3
 
+
 def test_redis_group_fanout(bus_many_groups_clients: Tuple[TactfulRedisStreamBus, ...]):
     (sender, client1, client2, client3) = bus_many_groups_clients
 
@@ -127,31 +127,3 @@ def test_redis_group_fanout(bus_many_groups_clients: Tuple[TactfulRedisStreamBus
     assert len(events_in2) > 0
     assert len(events_in3) > 0
     assert events_in1 == events_in2 == events_in3
-
-def test_max_stream_length(bus_client: TactfulRedisStreamBus):
-    bus_client.approximate_trimming = False  # Enable approximate trimming
-    max_stream_len = 4  # Define the maximum stream length
-    extra_events = 2  # Define the number of extra events to publish
-
-    # Add event handlers and prepare streams for the client
-    bus_client.add_event_handler("billing", "CreditCardExpired", None)
-    bus_client._prepare_streams()
-
-    # Publish more events than the maximum stream length
-    events_out = [
-        Event(version = 2, topic="billing", event="CreditCardExpired", profile_id=i, max_stream_len=max_stream_len)
-        for i in range(max_stream_len + extra_events)
-    ]
-    for event in events_out:
-        bus_client.publish(event)
-
-    # Read events from the stream
-    events_in = bus_client.read(count=max_stream_len+extra_events)
-
-    # Assert that the length of received events is equal to max_stream_len
-    assert len(events_in) == max_stream_len
-
-    # Assert that the oldest messages are trimmed
-    expected_profiles = set(range(extra_events, max_stream_len + extra_events))
-    received_profiles = {event.profile_id for event in events_in}
-    assert expected_profiles == received_profiles

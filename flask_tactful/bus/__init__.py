@@ -8,8 +8,7 @@ The concrete implementations of the bus are:
 We employ the redis implementation at the moment only.
 """
 
-__all__ = ["TactfulBus", "TactfulRedisStreamBus", "publish_bus_apis"]
+__all__ = ["TactfulBus", "TactfulRedisStreamBus"]
 
 from .bus import TactfulBus
 from .bus_redis import TactfulRedisStreamBus
-from .bus_api import publish_bus_apis
