@@ -1,12 +1,13 @@
 
 from typing import Any, Dict, Iterable, List, Optional
 import json
+import time
 import socket
 import logging
 from pydantic import parse_obj_as
 from flask import Flask
 from redis import Redis
-from redis.exceptions import RedisError
+from redis.exceptions import RedisError, ConnectionError
 
 from ..ddd import Event
 from .bus import TactfulBus
@@ -64,14 +65,17 @@ class TactfulRedisStreamBus(TactfulBus):
             consumer_name=app.config.get("REDIS_CONSUMER_NAME", socket.gethostname()),
             prefix=app.config.get("STAGE", "local:"),
             logger=app.logger,
+            busReconnectionTimeout=app.config.get("REDIS_RECONNECTION_TIMEOUT", 120),
             **kw
         )
 
-    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, **kw):
+    def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, busReconnectionTimeout = 120, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
+        self.busReconnectionTimeout = busReconnectionTimeout
+
         if not (group_name and consumer_name):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
 
@@ -129,14 +133,25 @@ class TactfulRedisStreamBus(TactfulBus):
 
     def _start_reading(self):
         super()._start_reading()
-        self._prepare_streams()
-        while (True):
-            events = self.read(count=1)
-            for event in events:
-                self._run_handlers(event)
-
-            self._stop_if_interrupted()
-
+        connected = False
+        while not connected:
+            try:
+                self._prepare_streams()
+                connected = True
+                while (True):
+                    events = self.read(count=1)
+                    for event in events:
+                        self._run_handlers(event)
+                    self._stop_if_interrupted()
+            except ConnectionError as e:
+                connected = False
+                errorMessage = f"Connection error: {e}. Retrying in {self.busReconnectionTimeout} seconds..."
+                if self.logger:
+                    self.logger.error(errorMessage)
+                else:
+                    print(errorMessage)
+                time.sleep(self.busReconnectionTimeout)
+    
     def shutdown(self, signal: int, frame: Any):
         self.redis.close()
 
