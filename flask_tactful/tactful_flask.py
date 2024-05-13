@@ -49,6 +49,7 @@ class TactfulFlask(Flask):
             _type_: _description_
         """
         # Updates the Flask application configuration
+        print("########## CONFIGURE ############")
         self.config.update(app_config)
 
         # initialize middlewares

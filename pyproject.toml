@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flask-tactful"
-version = "2.1.11"
+version = "2.1.13"
 description = "Flask Utilities used by Tactful AI services"
 authors = ["Tactful AI <dev@tactful.ai>"]
 

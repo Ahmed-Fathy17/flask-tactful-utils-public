@@ -71,6 +71,7 @@ class TactfulRedisStreamBus(TactfulBus):
 
     def __init__(self, app: Flask, bus_url: str, group_name: str, consumer_name: str, prefix: str = "local:", logger: Optional[logging.Logger] = None, busReconnectionTimeout = 120, **kw):
         super().__init__(app=app, prefix=prefix, logger=logger, **kw)
+        print("####### INIT BUS ###########")
         self.redis = Redis.from_url(url=bus_url, decode_responses=True)
         self.group_name = group_name
         self.consumer_name = consumer_name
