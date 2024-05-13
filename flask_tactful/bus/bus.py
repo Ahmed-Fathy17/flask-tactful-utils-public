@@ -182,6 +182,7 @@ class TactfulBus(abc.ABC):
     def _stop_if_interrupted(self):
         # stop the consumer
         if self.interrupt_event.is_set():
+            print("********* _stop_if_interrupted")
             self.shutdown(signal.SIGTERM, None)
             self.interrupt_event.clear()
 
