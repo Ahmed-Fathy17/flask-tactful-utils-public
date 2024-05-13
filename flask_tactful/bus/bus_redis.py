@@ -136,9 +136,11 @@ class TactfulRedisStreamBus(TactfulBus):
         connected = False
         while not connected:
             try:
+                print("####### WHILE NOT CONNECTED #########")
                 self._prepare_streams()
                 connected = True
                 while (True):
+                    print("####### WHILE TRUE #########")
                     events = self.read(count=1)
                     for event in events:
                         self._run_handlers(event)
