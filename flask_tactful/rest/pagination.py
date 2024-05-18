@@ -6,9 +6,10 @@ default_general_namespace = Namespace('default')
 
 
 pagination_model = default_general_namespace.model("pagination", {
-    'page': fields.Integer,
-    'per_page': fields.Integer,
-    'total': fields.Integer
+    "page": fields.Integer,
+    "pagesCount": fields.Integer,
+    "limit": fields.Integer,
+    "itemsCount": fields.Integer,
 })
 
 rule_model = default_general_namespace.model("Rule", {
@@ -22,7 +23,7 @@ rule_model = default_general_namespace.model("Rule", {
 
 pagination_parser = reqparse.RequestParser()
 pagination_parser.add_argument('page', type=int, default=1, location='args', help='Page number')
-pagination_parser.add_argument('per_page', type=int, default=1, location='args', help='Number of items per page')
+pagination_parser.add_argument('limit', type=int, default=10000, location='args', help='Number of items per page')
 
 
 def envelop_pagination(namespace: Namespace, model: Model):
