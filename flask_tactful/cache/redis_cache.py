@@ -3,8 +3,8 @@ import json
 from .cache import AbstractCacheStore
 
 class RedisCache(AbstractCacheStore):
-    def __init__(self, host='localhost', port=6379, db=0):
-        self.r = redis.Redis(host=host, port=port, db=db)
+    def __init__(self, url='redis://localhost:6379', db=0):
+        self.r = redis.Redis.from_url(url, db=db)
 
     def set(self, key, value, expires=None):
         """
