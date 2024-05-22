@@ -1,4 +1,4 @@
-import redis
+from redis import Redis
 import json
 from .cache import AbstractCacheStore
 
