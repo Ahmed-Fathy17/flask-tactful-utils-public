@@ -202,7 +202,7 @@ class TactfulRedisStreamBus(TactfulBus):
         try:
             EventDocumentor.auto_record_event({
                 'eventName': event.event,
-                'service': self.consumer_name,
+                'service': self.group_name,
                 'action': 'publish',
                 'topic': event.topic,
                 'broker': 'Redis Stream',
