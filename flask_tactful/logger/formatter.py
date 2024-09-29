@@ -8,10 +8,12 @@ class CustomFormatter(logging.Formatter):
 
     converter = time.gmtime
     isLocal = False
+    newLineToken = "_NEWLINE_"
     
     def configure(self, config: dict):
         stage = config.get('STAGE', 'Local').lower()
         self.isLocal = (stage == 'local' or stage == 'development')
+        self.newLineToken = config.get('NEW_LINE_TOKEN', '_NEWLINE_')
         
     def formatException(self, exc_info) -> str :
         if exc_info is None:
@@ -33,5 +35,5 @@ class CustomFormatter(logging.Formatter):
         if self.isLocal:
             return log_message
         else:
-            return re.sub(r"\n", "_NEWLINE_", log_message)
+            return re.sub(r"\n", self.newLineToken, log_message)
 
