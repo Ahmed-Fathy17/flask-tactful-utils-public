@@ -13,3 +13,4 @@ __all__ = ["TactfulBus", "TactfulRedisStreamBus", "publish_bus_apis"]
 from .bus import TactfulBus
 from .bus_redis import TactfulRedisStreamBus
 from .bus_api import publish_bus_apis
+from .events_doc import EventDocumentor

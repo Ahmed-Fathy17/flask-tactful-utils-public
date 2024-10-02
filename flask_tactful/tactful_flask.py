@@ -2,6 +2,7 @@ import os
 from typing import Dict
 from flask import Flask
 from flask.globals import _cv_app
+from flask_tactful.bus.events_doc import EventDocumentor
 from werkzeug.local import LocalProxy
 from celery import Celery
 from flask_sqlalchemy import SQLAlchemy
@@ -56,6 +57,8 @@ class TactfulFlask(Flask):
 
         # initialize database
         self.db = database.init_app(self)
+
+        EventDocumentor.initialize(self, api_name, api_version)
 
         # initialize task queue
         self.celery = worker.init_app(self)
