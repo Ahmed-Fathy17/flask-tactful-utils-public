@@ -1,9 +1,7 @@
 import logging
 import bugsnag
 from bugsnag.flask import handle_exceptions
-from bugsnag.handlers import BugsnagHandler
-import math
-from ..logger import CustomFormatter
+from ..logger import configure_logger
 
 def init_app(app):
     """ configures default monitoring using busgnag and logging for any flask app"""
@@ -30,30 +28,13 @@ def init_app(app):
     #     '%(asctime)s [%(levelname)s] %(filename)s: %(message)s')
 
     ########## Logging handler for (WARNING and above) severity ##########
-    level = logging_levels.get(app.config['LOG_LEVEL'].upper(), math.inf)
+    level = logging_levels.get(app.config['LOG_LEVEL'].upper(), 10000000)
 
     ############ Logging handler for (debugging and above) severity ######
     # std_handler.setFormatter(formatter)
     # pylint: disable=no-member
     app.logger.setLevel(level)
-    default_handler = None
-    if app.logger.handlers is not None:
-        default_handler = app.logger.handlers[0]
-    else:
-        default_handler = logging.StreamHandler()
-        app.logger.addHandler(default_handler)
-    
-    formatter = CustomFormatter()
-    formatter.configure(app.config)
-    if default_handler:
-        default_handler.setFormatter(formatter)
-    # app.logger.addHandler(std_handler)    # already configured by flask, this causes duplicated logs
-    # pylint: disable=no-member
-
-    bugsnag_handler = BugsnagHandler()
-    # send only WARNING-level logs and above
-    bugsnag_handler.setLevel(logging.WARNING)
-    app.logger.addHandler(bugsnag_handler)
+    configure_logger(app)
 
 
 # we could use @app.errorhandler(Exception) here, but this will be too broad and will make development harder.

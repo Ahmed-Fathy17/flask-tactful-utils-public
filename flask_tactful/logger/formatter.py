@@ -10,11 +10,12 @@ class CustomFormatter(logging.Formatter):
     isLocal = False
     newLineToken = "_NEWLINE_"
     
-    def configure(self, config: dict):
-        stage = config.get('STAGE', 'Local').lower()
+    def __init__(self, app_config: dict) -> None:
+        super().__init__()
+        stage = app_config.get('STAGE', 'Local').lower()
         self.isLocal = (stage == 'local' or stage == 'development')
-        self.newLineToken = config.get('NEW_LINE_TOKEN', '_NEWLINE_')
-        
+        self.newLineToken = app_config.get('NEW_LINE_TOKEN', '_NEWLINE_')
+
     def formatException(self, exc_info) -> str :
         if exc_info is None:
             return ''

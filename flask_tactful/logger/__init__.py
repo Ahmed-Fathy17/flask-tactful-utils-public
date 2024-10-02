@@ -1,5 +1,5 @@
 
-__all__ = ['CustomFormatter', 'configure_log_modules']
+__all__ = ['CustomFormatter', 'configure_logger']
 
 from .formatter import CustomFormatter
-from .config import configure_log_modules
+from .config import configure_logger
