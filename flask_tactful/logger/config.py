@@ -5,7 +5,7 @@ from bugsnag.handlers import BugsnagHandler
 
 def configure_logger(app):
     LOG_MODULES = app.config.get("LOG_MODULES", "")
-    LOG_LEVEL = app.config.get("LOGGER_LEVEL", 10000000)
+    LOG_LEVEL = app.config.get("LOG_LEVEL", 10000000)
 
     enabled_modules = [module for module in re.split(r'[\s,]+', LOG_MODULES) if module]
     loggers_to_enable = [name for name in logging.root.manager.loggerDict if any([re.match(regex, name) for regex in enabled_modules])]
