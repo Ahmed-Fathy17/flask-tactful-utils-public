@@ -15,11 +15,17 @@ config = dict(
     REDIS_BUS_URL='redis://localhost:6379/11',
     REDIS_CONSUMER_GROUP="users",
     REDIS_CONSUMER_NAME="users-1",
-    BUGSNAG_KEY=os.getenv("BUGSNAG_KEY")
+
+
+
 
 )
 
+config["BUGSNAG_MONITORING_KEY"] = os.getenv("BUGSNAG_KEY_MONITORING")
+
+print("KEY FROM CONFIG:", config.get("BUGSNAG_MONITORING_KEY")) 
 application = TactfulFlask(__name__)
+application.config.update(config)
 application.configure(config, api_title="Tactful AI Flask Utils Test API", api_name='flask', api_version="v1")
 APP_HOME = "/flask_tactful"
 sys.path.insert(0, APP_HOME)

@@ -90,7 +90,10 @@ class TactfulRedisStreamBus(TactfulBus):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
         ############################
         # configure bugsnag
-        api_key = os.getenv("BUGSNAG_KEY")
+        api_key = os.getenv("BUGSNAG_KEY_REDIS")
+
+        print("Redis key:", api_key)
+
         if not api_key:
             raise RuntimeError("BUGSNAG_KEY is not set. Please set it in the environment.")
         bugsnag.configure(api_key=api_key)

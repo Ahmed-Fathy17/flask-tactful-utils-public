@@ -9,8 +9,10 @@ def init_app(app):
 
     # Get BUGSNAG_KEY from env or config
 
-    api_key = app.config.get('BUGSNAG_KEY')  
-    print("BUGSNAG_KEY =", api_key)
+    api_key = app.config.get('BUGSNAG_MONITORING_KEY')
+ 
+    print("Monitoring key:", api_key)
+
     if not api_key:
         raise RuntimeError("BUGSNAG_KEY is not set. Please set it in the environment or app config.")
 
