@@ -61,16 +61,8 @@ doc= { shell = "make zundler" }
 version = { shell = "poetry version patch && export TAG_VERSION=$(poetry version --short) && git commit -a -m $TAG_VERSION && git tag -a $TAG_VERSION -m $TAG_VERSION  &&  git push && git push --tags" }
 
 
-[[tool.poetry.source]]
-name = "aws"
-url = "https://tactful-409160330780.d.codeartifact.eu-west-1.amazonaws.com/pypi/ucx-pip/simple/"
-secondary = true
 
 
-[[tool.poetry.source]]
-name = "aws-publish"
-url = "https://tactful-409160330780.d.codeartifact.eu-west-1.amazonaws.com/pypi/ucx-pip/"
-secondary = true
 
 [tool.pytest.ini_options]
 log_level = "WARN"

@@ -2,6 +2,8 @@ import json
 import socket
 import logging
 import time
+import os
+
 # Flask
 from flask import Flask
 # Redis
@@ -88,7 +90,11 @@ class TactfulRedisStreamBus(TactfulBus):
             raise AttributeError("must provide REDIS consumer group and consumer names. Bus works only in Consumer Groups mode.")
         ############################
         # configure bugsnag
-        bugsnag.configure(api_key='90380d666a503032a46dc022dce6db0d')
+        api_key = os.getenv("BUGSNAG_KEY")
+        if not api_key:
+            raise RuntimeError("BUGSNAG_KEY is not set. Please set it in the environment.")
+        bugsnag.configure(api_key=api_key)
+
         if not self.logger:
             # Use the Flask default logger
             handle_exceptions(app)

@@ -5,11 +5,18 @@ from bugsnag.handlers import BugsnagHandler
 
 
 def init_app(app):
-    """ configures default monitoring using busgnag and logging for any flask app"""
+    """ configures default monitoring using Bugsnag and logging for any Flask app """
+
+    # Get BUGSNAG_KEY from env or config
+
+    api_key = app.config.get('BUGSNAG_KEY')  
+    print("BUGSNAG_KEY =", api_key)
+    if not api_key:
+        raise RuntimeError("BUGSNAG_KEY is not set. Please set it in the environment or app config.")
 
     # Configure Bugsnag
     bugsnag.configure(
-        api_key=app.config.get('BUGSNAG_KEY', "a250c2a3659a4a81effa97aa7bf30fe6"),
+        api_key=api_key,
         notify_release_stages=["dstnyengage", "production", "staging", "beta", "alpha", "demo", "test", "qa", "eco", "channels", "eng"],
         release_stage=app.config.get('STAGE', 'development'),
         auto_notify=True,

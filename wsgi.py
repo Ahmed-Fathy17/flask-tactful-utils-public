@@ -1,3 +1,9 @@
+from dotenv import load_dotenv
+import os
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+
+
+
 from flask_tactful import TactfulFlask
 import sys
 
@@ -9,6 +15,7 @@ config = dict(
     REDIS_BUS_URL='redis://localhost:6379/11',
     REDIS_CONSUMER_GROUP="users",
     REDIS_CONSUMER_NAME="users-1",
+    BUGSNAG_KEY=os.getenv("BUGSNAG_KEY")
 
 )
 
